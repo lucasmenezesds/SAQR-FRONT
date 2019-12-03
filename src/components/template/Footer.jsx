@@ -3,6 +3,8 @@ import React from 'react';
 
 export default (props) => (
   <footer className="footer">
-    Footer
+    <span>
+    Developed by Lucas Menezes
+    </span>
   </footer>
 );
