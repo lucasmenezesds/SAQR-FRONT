@@ -1,29 +1,30 @@
 import './Nav.css';
 import React from 'react';
+import { Link } from 'react-router-dom';
 
 export default (props) => (
   <aside className="menu-area">
     <nav className="menu">
-      <a href="#/">
+      <Link to="/">
         <i className="fa fa-home" />
         {' '}
         Home
-      </a>
-      <a href="#/simulate">
+      </Link>
+      <Link to="/simulate">
         <i className="fa fa-calculator" aria-hidden="true" />
         {' '}
         Simulate
-      </a>
-      <a href="#/graphs">
+      </Link>
+      <Link to="/graphs">
         <i className="fa fa-area-chart" aria-hidden="true" />
         {' '}
         Graphs
-      </a>
-      <a href="#/previous_simulations">
+      </Link>
+      <Link to="/previous_simulations">
         <i className="fa fa-database" aria-hidden="true" />
         {' '}
         Previous Simulations
-      </a>
+      </Link>
     </nav>
   </aside>
 );
