@@ -20,11 +20,11 @@ export default (props) => (
         {' '}
         Graphs
       </Link>
-      <Link to="/previous_simulations">
-        <i className="fa fa-database" aria-hidden="true" />
-        {' '}
-        Previous Simulations
-      </Link>
+      {/* <Link to="/previous_simulations"> */}
+      {/*  <i className="fa fa-database" aria-hidden="true" /> */}
+      {/*  {' '} */}
+      {/*  Previous Simulations */}
+      {/* </Link> */}
     </nav>
   </aside>
 );
