@@ -4,7 +4,7 @@ import HighchartsReact from 'highcharts-react-official';
 import highchartBellCurve from 'highcharts/modules/histogram-bellcurve';
 
 // My Components
-import Main from '../template/Main';
+import Main from '../Template/Main';
 
 
 

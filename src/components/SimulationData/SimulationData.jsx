@@ -1,6 +1,6 @@
 import axios from 'axios';
 import React, { Component } from 'react';
-import Main from '../template/Main';
+import Main from '../Template/Main';
 // import DropdownInput from "../dropdownInput";
 import { Dropdown } from "semantic-ui-react";
 

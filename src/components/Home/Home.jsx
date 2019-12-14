@@ -1,7 +1,7 @@
 import React from 'react';
 
 // My Components
-import Main from '../template/Main';
+import Main from '../Template/Main';
 
 function Home() {
   return (
