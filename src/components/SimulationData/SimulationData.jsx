@@ -1,7 +1,9 @@
 import axios from 'axios';
 import React, { Component } from 'react';
 import Main from '../Template/Main';
-// import DropdownInput from "../dropdownInput";
+import './SimulationData.css';
+import DistributionParameters from "../Distribution/DistributionParameters";
+import { BASE_URL } from "../../constants/api";
 import { Dropdown } from "semantic-ui-react";
 
 const headerProps = {
@@ -10,184 +12,275 @@ const headerProps = {
   subtitle: "Here is where you'll input the data to create the simulations you would like to generate",
 };
 
-const baseUrl = 'http://localhost:3000/simulate';
-
-const cityOptions = [
-  { value: '1', displayValue: 'Uberlandia' },
-  { value: '2', displayValue: 'Araguari' },
-  { value: '3', displayValue: 'Uberaba' }
-];
-const citiesOptions = [
-  { key: '1', value: '1', text: 'Araguari' },
-  { key: '2', value: '2', text: 'São Paulo' },
-  { key: '3', value: '3', text: 'Uberaba' },
-  { key: '4', value: '4', text: 'Uberlândia' },
-];
-
-
-const initialState = {
-  simulationParams: {
-    numberOfSimulations: 1,
-    numberOfTests: 500,
-    originCity: '',
-    destinationCity: '',
-    deliveryDuration: 0,
-    numberOfItemsToDeliver: 0,
-    numberOfItemsTypes: 0
-  },
-  listOfCities: [],
+// TODO: refactor
+const initialPayload = {
+  "data": {
+    "number_of_simulations": 100,
+    "number_of_samples": 5000,
+    "steps": [
+      {
+        "delivery_step": "picking_time",
+        "distribution_method": {
+          "name": null,
+          "parameters": []
+        }
+      },
+      {
+        "delivery_step": "load_time",
+        "distribution_method": {
+          "name": null,
+          "parameters": []
+        }
+      },
+      {
+        "delivery_step": "transportation_time",
+        "distribution_method": {
+          "name": null,
+          "parameters": []
+        }
+      },
+      {
+        "delivery_step": "receive_time",
+        "distribution_method": {
+          "name": null,
+          "parameters": []
+        }
+      },
+      {
+        "delivery_step": "storage_time",
+        "distribution_method": {
+          "name": null,
+          "parameters": []
+        }
+      }
+    ]
+  }
 };
 
-
+const initialState = {
+  simulationPayload: initialPayload,
+  listOfStatisticalMethods: [],
+  stepsDistributionsParameters: {
+    picking_time: { parameters: [] },
+    load_time: { parameters: [] },
+    transportation_time: { parameters: [] },
+    receive_time: { parameters: [] },
+    storage_time: { parameters: [] },
+  }
+};
 export default class SimulationData extends Component {
   state = { ...initialState };
 
-  componentWillMount() {
-    axios(baseUrl)
+  updateSimulationPayloadStepsData(deliveryStep, distributionName, distributionParameters) {
+    this.state.simulationPayload.data.steps.find((element, index) => {
+      if (element.delivery_step === deliveryStep) {
+        const deliveryStepObj = { ...this.state.simulationPayload.data.steps[index] };
+
+        deliveryStepObj.name = distributionName;
+        deliveryStepObj.parameters = distributionParameters;
+
+        this.setState({ deliveryStepObj })
+      }
+    });
+  }
+
+  updateStepsDistributionsParameters(stepName, distributionName) {
+    this.state.listOfStatisticalMethods.find((element, index) => {
+      if (element.value === distributionName) {
+        const stepsDistribution = { ...this.state.stepsDistributionsParameters };
+        stepsDistribution[stepName].parameters = element.parameters;
+        this.setState({ stepsDistribution })
+      }
+
+    });
+  }
+
+  componentDidMount() {
+    axios.get(`${BASE_URL}/distribution_methods`, {
+      headers: {
+        'Accept': 'application/vnd.api+json',
+      }
+    })
       .then(resp => {
-        this.setState({ listOfCities: resp.data })
+        this.setState({ listOfStatisticalMethods: resp.data.data })
+      })
+      .catch(err => {
+        console.log("distribution_methods CATCH");
+        console.log(err)
       })
   }
 
-  clear() {
-    this.setState({ simualtionParams: initialState.simulationParams });
-  }
-
-  save() {
-    const { simulationData } = this.state;
-    const method = simulationData.id ? 'put' : 'post';
-    const url = simulationData.id ? `${baseUrl}/${simulationData.id}` : baseUrl;
-    axios[method](url, simulationData)
+  sendRequest() {
+    const { simulationPayload } = this.state;
+    const url = `${BASE_URL}/simulate_deliveries`;
+    axios.post(url, simulationPayload, {
+      headers: {
+        'Accept': 'application/vnd.api+json',
+      }
+    })
       .then((resp) => {
-        const list = this.getUpdatedList(resp.data);
-        this.setState({ simulationData: initialState.simulationParams, list })
+        console.log(resp)
+      })
+      .catch((err) => {
+        alert(`Something Went Wrong\n\n${err}`)
       });
   }
 
-  getUpdatedList(simulationData) {
-    const list = this.state.list.filter(data => data.id !== simulationData.id);
-    list.unshift(simulationData);
-    return list
-  }
-
   updateField(event) {
-    console.log('evento ----');
-    console.log(event.target);
-    console.log('----');
-    const simulationData = { ...this.state.simulationParams };
-    simulationData[event.target.name] = event.target.value;
+    const simulationData = { ...this.state.simulationPayload };
+    simulationData['data'][event.target.name] = event.target.value;
     this.setState({ simulationData })
   }
 
 
   renderForm() {
+    // TODO: Refactor to re-use dropdown component
     return (
       <div className="form">
-        <div className="row">
-          <div className="col-6 col-md-3">
+        <div className="row simulation-steps">
+          <div className="col-2 col-md-2">
             <div className="form-group">
               <label>Number of Simulations</label>
               <input type="text" className="form-control text-center"
-                     placeholder={this.state.simulationParams.numberOfSimulations}
-                     name="numberOfSimulations"
+                     placeholder={this.state.simulationPayload.data.number_of_simulations}
+                     name="number_of_simulations"
                      onChange={e => this.updateField(e)}/>
             </div>
           </div>
-
-          {/*<div className="col-3 col-md-2">*/}
-          {/*  <div className="form-group">*/}
-          {/*    <label>Number of Simulations</label>*/}
-          {/*    <input type="text" className="form-control text-center"*/}
-          {/*           name=""*/}
-          {/*           value={this.state.simulationParams.numberOfSimulations}*/}
-          {/*           onChange={e => this.updateField(e)}/>*/}
-          {/*  </div>*/}
-          {/*</div>*/}
-
           <div className="col-6 col-md-3">
             <div className="form-group">
               <label>Number of generations for each simulation</label>
               <input type="text" className="form-control text-center"
-                     placeholder={this.state.simulationParams.numberOfTests}
-                     name="numberOfTests"
+                     placeholder={this.state.simulationPayload.data.number_of_samples}
+                     name="number_of_samples"
                      onChange={e => this.updateField(e)}/>
 
             </div>
           </div>
-          <hr/>
-          <div className="col-6 col-md-6">
+        </div>
+        <hr/>
+        <div className="row simulation-steps">
+          <div className="col-3 col-md-3">
+            <h3>Step: Picking Time</h3>
             <div className="form-group">
-              <label>Origin City </label>
+              <label>Select a distribution for this step</label>
               <Dropdown
-                name='originCity'
-                placeholder='Select City'
+                name="picking_time"
+                placeholder="Exponential"
                 fluid
                 search
                 selection
-                options={citiesOptions}
-                onChange={e => this.updateField(e)}
+                options={this.state.listOfStatisticalMethods}
+                onChange={(event, { name, value }) => {
+                  this.updateStepsDistributionsParameters(name, value)
+                }}
               />
             </div>
           </div>
-
-          <div className="col-6 col-md-6">
+          <DistributionParameters parameters={this.state.stepsDistributionsParameters.picking_time.parameters}
+                                  stepName={'picking_time'}
+                                  updateStepsParameters={this.updateSimulationPayloadStepsData}> </DistributionParameters>
+        </div>
+        <hr/>
+        <div className="row simulation-steps">
+          <div className="col-3 col-md-3">
+            <h3>Step: Loading Time</h3>
             <div className="form-group">
-              <label>Destination City</label>
+              <label>Select a distribution for this step</label>
               <Dropdown
-                name='destinationCity'
-                placeholder='Select City'
+                name="load_time"
+                placeholder="Exponential"
                 fluid
                 search
                 selection
-                options={citiesOptions}
-                onChange={e => this.updateField(e)}
+                options={this.state.listOfStatisticalMethods}
+                onChange={(event, { name, value }) => {
+                  this.updateStepsDistributionsParameters(name, value)
+                }}
               />
             </div>
           </div>
-
-          <div className="col-6 col-md-6">
+          <DistributionParameters parameters={this.state.stepsDistributionsParameters.load_time.parameters}
+                                  stepName={'load_time'}
+                                  updateStepsParameters={this.updateSimulationPayloadStepsData}> </DistributionParameters>
+        </div>
+        <hr/>
+        <div className="row simulation-steps">
+          <div className="col-3 col-md-3">
+            <h3>Step: Transportation Time</h3>
             <div className="form-group">
-              <label>Delivery Duration (Hours)</label>
-              <input type="text" className="form-control text-center"
-                     placeholder={this.state.simulationParams.deliveryDuration}
-                     name="deliveryDuration"
-                     onChange={e => this.updateField(e)}/>
+              <label>Select a distribution for this step</label>
+              <Dropdown
+                name="transportation_time"
+                placeholder="Exponential"
+                fluid
+                search
+                selection
+                options={this.state.listOfStatisticalMethods}
+                onChange={(event, { name, value }) => {
+                  this.updateStepsDistributionsParameters(name, value)
+                }}
+              />
             </div>
           </div>
-
-          <div className="col-6 col-md-6">
+          <DistributionParameters parameters={this.state.stepsDistributionsParameters.transportation_time.parameters}
+                                  stepName={'transportation_time'}
+                                  updateStepsParameters={this.updateSimulationPayloadStepsData}> </DistributionParameters>
+        </div>
+        <hr/>
+        <div className="row simulation-steps">
+          <div className="col-3 col-md-3">
+            <h3>Step: Receiving Time</h3>
             <div className="form-group">
-              <label>Number of Items to Deliver</label>
-              <input type="text" className="form-control text-center"
-                     placeholder={this.state.simulationParams.numberOfItemsToDeliver}
-                     name="numberOfItemsToDeliver"
-                     onChange={e => this.updateField(e)}/>
+              <label>Select a distribution for this step</label>
+              <Dropdown
+                name="receive_time"
+                placeholder="Exponential"
+                fluid
+                search
+                selection
+                options={this.state.listOfStatisticalMethods}
+                onChange={(event, { name, value }) => {
+                  this.updateStepsDistributionsParameters(name, value)
+                }}
+              />
             </div>
           </div>
-
-          <div className="col-6 col-md-6">
+          <DistributionParameters parameters={this.state.stepsDistributionsParameters.receive_time.parameters}
+                                  stepName={'receive_time'}
+                                  updateStepsParameters={this.updateSimulationPayloadStepsData}> </DistributionParameters>
+        </div>
+        <hr/>
+        <div className="row simulation-steps">
+          <div className="col-3 col-md-3">
+            <h3>Step: Storing Time</h3>
             <div className="form-group">
-              <label>Number of Item's Types</label>
-              <input type="text" className="form-control text-center"
-                     placeholder={this.state.simulationParams.numberOfItemsTypes}
-                     name="numberOfItemsTypes"
-                     onChange={e => this.updateField(e)}/>
+              <label>Select a distribution for this step</label>
+              <Dropdown
+                name="storage_time"
+                placeholder="Exponential"
+                fluid
+                search
+                selection
+                options={this.state.listOfStatisticalMethods}
+                onChange={(event, { name, value }) => {
+                  this.updateStepsDistributionsParameters(name, value)
+                }}
+              />
             </div>
           </div>
-
+          <DistributionParameters parameters={this.state.stepsDistributionsParameters.storage_time.parameters}
+                                  stepName={'storage_time'}
+                                  updateStepsParameters={this.updateSimulationPayloadStepsData}> </DistributionParameters>
         </div>
         <hr/>
         <div className="row">
           <div className="col-12 d-flex justify-content-end">
             <button className="btn btn-primary"
-                    onClick={e => this.save(e)}>
+                    onClick={e => this.sendRequest(e)}>
               Start Simulation!
             </button>
 
-            <button className="btn btn-secondary ml-2"
-                    onClick={e => this.clear(e)}>
-              Cancel
-            </button>
           </div>
         </div>
       </div>
