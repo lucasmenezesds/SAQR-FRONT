@@ -3,12 +3,11 @@ import PropTypes from 'prop-types';
 import { Input, Popup } from 'semantic-ui-react';
 import './DistributionParameters.css';
 
-const initialParametersState = { parameters: [] };
+const initialState = { parameters: {} };
 
 // eslint-disable-next-line react/prefer-stateless-function
 class DistributionParameters extends Component {
-
-  state = { ...initialParametersState };
+  state = { ...initialState };
 
   createParameterObj(receivedId, receivedName, receivedValue) {
     return {
@@ -18,26 +17,39 @@ class DistributionParameters extends Component {
     }
   }
 
-  updateParametersList(receivedId, receivedName, receivedValue) {
-    this.state.parameters.find((element, index) => {
-      if (element.id === receivedId) {
-        const deliveryStepObj = { ...this.state.parameters[index] };
+  updateParametersList(receivedId, receivedName, receivedValue, stepName, distributionName) {
+    const currentState = { ...this.state };
+    const deliveryStepObj = currentState.parameters;
 
-        deliveryStepObj.name = receivedName;
-        deliveryStepObj.value = receivedValue;
+    if (!deliveryStepObj[stepName]) {
+      deliveryStepObj[stepName] = {};
+    }
 
-        this.setState({ deliveryStepObj })
-      } else {
-        const newParam = this.createParameterObj(receivedId, receivedName, receivedValue);
-        const joinedArray = this.state.parameters.concat(newParam);
+    if (!deliveryStepObj[stepName][distributionName]) {
+      deliveryStepObj[stepName][distributionName] = { distributionName: distributionName, parametersData: [] }
+    }
 
-        this.setState({ parameters: joinedArray })
-      }
+    const index = deliveryStepObj[stepName][distributionName].parametersData.findIndex((parameterElement) => {
+      return parameterElement.id === receivedId
     });
 
+    if (index !== -1) {
+      deliveryStepObj[stepName][distributionName].parametersData[index].name = receivedName;
+      deliveryStepObj[stepName][distributionName].parametersData[index].value = receivedValue;
+
+      this.setState({ parametersData: deliveryStepObj })
+    } else {
+      const newParamObj = this.createParameterObj(receivedId, receivedName, receivedValue);
+      const params = deliveryStepObj[stepName][distributionName].parametersData;
+
+      params.push(newParamObj);
+      deliveryStepObj[stepName][distributionName].parametersData = params;
+    }
+
+    this.setState({ parameters: deliveryStepObj })
   }
 
-  parameterDiv(param) {
+  parameterDiv(param, index) {
     return (
       <div className="form-group" key={param.id}>
         <div className="form-group distribution-parameters text-center">
@@ -48,14 +60,17 @@ class DistributionParameters extends Component {
             )}
           />
           <Input
-            type={param.uppercase}
+            type='number'
             id={param.id}
             className="parameterInput text-center"
             placeholder={10}
             name={param.name}
             onChange={(event, { id, name, value }) => {
-              this.updateParametersList(id, name, value);
-              this.props.updateStepsParameters(this.props.stepName, name, this.state.parameters);
+              const distributionNameToSend = this.props.parametersList.distributionName;
+              const stepNameToSend = this.props.stepName;
+
+              this.updateParametersList(id, name, value, stepNameToSend, distributionNameToSend);
+              this.props.updateStepsParameters(this.props.stepName, distributionNameToSend, this.state.parameters[stepNameToSend][distributionNameToSend].parametersData);
             }}
           />
         </div>
@@ -64,12 +79,14 @@ class DistributionParameters extends Component {
   }
 
   render() {
-    const { parameters } = this.props;
+    const { parametersList } = this.props;
     return (
       <>
         {' '}
         {
-          parameters.map((currentParam) => this.parameterDiv(currentParam))
+          parametersList.parameters.map((currentParam, index) => {
+            return this.parameterDiv(currentParam, index)
+          })
         }
         {' '}
       </>
@@ -79,7 +96,7 @@ class DistributionParameters extends Component {
 
 DistributionParameters.propTypes = {
   // eslint-disable-next-line react/forbid-prop-types
-  parameters: PropTypes.array.isRequired,
+  parametersList: PropTypes.object.isRequired,
 };
 
 export default DistributionParameters;

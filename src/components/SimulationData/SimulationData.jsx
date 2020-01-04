@@ -12,6 +12,14 @@ const headerProps = {
   subtitle: "Here is where you'll input the data to create the simulations you would like to generate",
 };
 
+
+const initialDistributionMethodObj = () => {
+  return {
+    "name": null,
+    "parameters": []
+  }
+};
+
 // TODO: refactor
 const initialPayload = {
   "data": {
@@ -20,79 +28,99 @@ const initialPayload = {
     "steps": [
       {
         "delivery_step": "picking_time",
-        "distribution_method": {
-          "name": null,
-          "parameters": []
-        }
+        "distribution_method": initialDistributionMethodObj()
       },
       {
         "delivery_step": "load_time",
-        "distribution_method": {
-          "name": null,
-          "parameters": []
-        }
+        "distribution_method": initialDistributionMethodObj()
       },
       {
         "delivery_step": "transportation_time",
-        "distribution_method": {
-          "name": null,
-          "parameters": []
-        }
+        "distribution_method": initialDistributionMethodObj()
       },
       {
         "delivery_step": "receive_time",
-        "distribution_method": {
-          "name": null,
-          "parameters": []
-        }
+        "distribution_method": initialDistributionMethodObj()
       },
       {
         "delivery_step": "storage_time",
-        "distribution_method": {
-          "name": null,
-          "parameters": []
-        }
+        "distribution_method": initialDistributionMethodObj()
       }
     ]
   }
 };
 
+
 const initialState = {
   simulationPayload: initialPayload,
   listOfStatisticalMethods: [],
-  stepsDistributionsParameters: {
-    picking_time: { parameters: [] },
-    load_time: { parameters: [] },
-    transportation_time: { parameters: [] },
-    receive_time: { parameters: [] },
-    storage_time: { parameters: [] },
+  stepsDistributionsParametersList: {
+    picking_time: { distributionName: null, parameters: [] },
+    load_time: { distributionName: null, parameters: [] },
+    transportation_time: { distributionName: null, parameters: [] },
+    receive_time: { distributionName: null, parameters: [] },
+    storage_time: { distributionName: null, parameters: [] },
   }
 };
 export default class SimulationData extends Component {
   state = { ...initialState };
 
-  updateSimulationPayloadStepsData(deliveryStep, distributionName, distributionParameters) {
-    this.state.simulationPayload.data.steps.find((element, index) => {
-      if (element.delivery_step === deliveryStep) {
-        const deliveryStepObj = { ...this.state.simulationPayload.data.steps[index] };
-
-        deliveryStepObj.name = distributionName;
-        deliveryStepObj.parameters = distributionParameters;
-
-        this.setState({ deliveryStepObj })
-      }
-    });
+  constructor() {
+    super();
+    this.updateSimulationPayloadStepsData = this.updateSimulationPayloadStepsData.bind(this)
   }
 
-  updateStepsDistributionsParameters(stepName, distributionName) {
-    this.state.listOfStatisticalMethods.find((element, index) => {
-      if (element.value === distributionName) {
-        const stepsDistribution = { ...this.state.stepsDistributionsParameters };
-        stepsDistribution[stepName].parameters = element.parameters;
-        this.setState({ stepsDistribution })
-      }
 
+  clearStepDistributionMethodData(stepName) {
+    const index = this.state.simulationPayload.data.steps.findIndex((element) => {
+      return element.delivery_step === stepName
     });
+
+    if (index !== -1) {
+      const deliverySteps = { ...this.state.simulationPayload.data.steps };
+      deliverySteps[index].distribution_method = initialDistributionMethodObj();
+
+      this.setState({ deliverySteps })
+    }
+  }
+
+  updateSimulationPayloadStepsData(deliveryStep, distributionName, distributionParameters) {
+    const index = this.state.simulationPayload.data.steps.findIndex((element) => {
+      return element.delivery_step === deliveryStep
+    });
+
+    if (index !== -1) {
+      const deliveryStepObjs = { ...this.state.simulationPayload.data.steps };
+      deliveryStepObjs[index].distribution_method.name = distributionName;
+      deliveryStepObjs[index].distribution_method.parameters = distributionParameters;
+
+      this.setState({ deliveryStepObjs })
+    }
+  }
+
+  updateStepsDistributionsParametersList(stepName, distributionName) {
+    this.clearStepDistributionMethodData(stepName);
+
+    const index = this.state.listOfStatisticalMethods.findIndex((element) => {
+      return element.value === distributionName
+    });
+
+    if (index !== -1) {
+      const stepsDistribution = { ...this.state.stepsDistributionsParametersList };
+      stepsDistribution[stepName].parameters = this.state.listOfStatisticalMethods[index].parameters;
+      stepsDistribution[stepName].distributionName = distributionName;
+
+      this.setState({ stepsDistribution })
+    }
+
+  }
+
+
+  updateField(event) {
+    const simulationData = { ...this.state.simulationPayload };
+    simulationData['data'][event.target.name] = event.target.value;
+
+    this.setState({ simulationData })
   }
 
   componentDidMount() {
@@ -106,7 +134,7 @@ export default class SimulationData extends Component {
       })
       .catch(err => {
         console.log("distribution_methods CATCH");
-        console.log(err)
+        console.log(err) //TODO: check it
       })
   }
 
@@ -119,19 +147,13 @@ export default class SimulationData extends Component {
       }
     })
       .then((resp) => {
-        console.log(resp)
+        console.log(resp) // TODO: Implement it
       })
       .catch((err) => {
         alert(`Something Went Wrong\n\n${err}`)
+        console.log(err)
       });
   }
-
-  updateField(event) {
-    const simulationData = { ...this.state.simulationPayload };
-    simulationData['data'][event.target.name] = event.target.value;
-    this.setState({ simulationData })
-  }
-
 
   renderForm() {
     // TODO: Refactor to re-use dropdown component
@@ -141,7 +163,7 @@ export default class SimulationData extends Component {
           <div className="col-2 col-md-2">
             <div className="form-group">
               <label>Number of Simulations</label>
-              <input type="text" className="form-control text-center"
+              <input type='number' className="form-control text-center"
                      placeholder={this.state.simulationPayload.data.number_of_simulations}
                      name="number_of_simulations"
                      onChange={e => this.updateField(e)}/>
@@ -150,7 +172,7 @@ export default class SimulationData extends Component {
           <div className="col-6 col-md-3">
             <div className="form-group">
               <label>Number of generations for each simulation</label>
-              <input type="text" className="form-control text-center"
+              <input type="number" className="form-control text-center"
                      placeholder={this.state.simulationPayload.data.number_of_samples}
                      name="number_of_samples"
                      onChange={e => this.updateField(e)}/>
@@ -172,12 +194,12 @@ export default class SimulationData extends Component {
                 selection
                 options={this.state.listOfStatisticalMethods}
                 onChange={(event, { name, value }) => {
-                  this.updateStepsDistributionsParameters(name, value)
+                  this.updateStepsDistributionsParametersList(name, value)
                 }}
               />
             </div>
           </div>
-          <DistributionParameters parameters={this.state.stepsDistributionsParameters.picking_time.parameters}
+          <DistributionParameters parametersList={this.state.stepsDistributionsParametersList.picking_time}
                                   stepName={'picking_time'}
                                   updateStepsParameters={this.updateSimulationPayloadStepsData}> </DistributionParameters>
         </div>
@@ -195,12 +217,12 @@ export default class SimulationData extends Component {
                 selection
                 options={this.state.listOfStatisticalMethods}
                 onChange={(event, { name, value }) => {
-                  this.updateStepsDistributionsParameters(name, value)
+                  this.updateStepsDistributionsParametersList(name, value)
                 }}
               />
             </div>
           </div>
-          <DistributionParameters parameters={this.state.stepsDistributionsParameters.load_time.parameters}
+          <DistributionParameters parametersList={this.state.stepsDistributionsParametersList.load_time}
                                   stepName={'load_time'}
                                   updateStepsParameters={this.updateSimulationPayloadStepsData}> </DistributionParameters>
         </div>
@@ -218,12 +240,12 @@ export default class SimulationData extends Component {
                 selection
                 options={this.state.listOfStatisticalMethods}
                 onChange={(event, { name, value }) => {
-                  this.updateStepsDistributionsParameters(name, value)
+                  this.updateStepsDistributionsParametersList(name, value)
                 }}
               />
             </div>
           </div>
-          <DistributionParameters parameters={this.state.stepsDistributionsParameters.transportation_time.parameters}
+          <DistributionParameters parametersList={this.state.stepsDistributionsParametersList.transportation_time}
                                   stepName={'transportation_time'}
                                   updateStepsParameters={this.updateSimulationPayloadStepsData}> </DistributionParameters>
         </div>
@@ -241,12 +263,12 @@ export default class SimulationData extends Component {
                 selection
                 options={this.state.listOfStatisticalMethods}
                 onChange={(event, { name, value }) => {
-                  this.updateStepsDistributionsParameters(name, value)
+                  this.updateStepsDistributionsParametersList(name, value)
                 }}
               />
             </div>
           </div>
-          <DistributionParameters parameters={this.state.stepsDistributionsParameters.receive_time.parameters}
+          <DistributionParameters parametersList={this.state.stepsDistributionsParametersList.receive_time}
                                   stepName={'receive_time'}
                                   updateStepsParameters={this.updateSimulationPayloadStepsData}> </DistributionParameters>
         </div>
@@ -264,12 +286,12 @@ export default class SimulationData extends Component {
                 selection
                 options={this.state.listOfStatisticalMethods}
                 onChange={(event, { name, value }) => {
-                  this.updateStepsDistributionsParameters(name, value)
+                  this.updateStepsDistributionsParametersList(name, value)
                 }}
               />
             </div>
           </div>
-          <DistributionParameters parameters={this.state.stepsDistributionsParameters.storage_time.parameters}
+          <DistributionParameters parametersList={this.state.stepsDistributionsParametersList.storage_time}
                                   stepName={'storage_time'}
                                   updateStepsParameters={this.updateSimulationPayloadStepsData}> </DistributionParameters>
         </div>
