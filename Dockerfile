@@ -1,9 +1,12 @@
 FROM node:10.18.0-buster
 
-WORKDIR /opt/app
+ENV APP_DIR=/opt/app/
 
-COPY . /opt/app
+WORKDIR $APP_DIR
 
+COPY package* $APP_DIR
 RUN npm install
+
+COPY . $APP_DIR
 
 CMD ["npm", "start"]
