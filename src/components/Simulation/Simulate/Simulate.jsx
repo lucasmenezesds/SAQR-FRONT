@@ -1,9 +1,9 @@
 import axios from 'axios';
 import React, { Component } from 'react';
-import Main from '../Template/Main';
-import './SimulationData.css';
-import DistributionParameters from "../Distribution/DistributionParameters";
-import { BASE_URL } from "../../constants/api";
+import Main from '../../Template/Main';
+import './Simulate.css';
+import DistributionParameters from "../../Distribution/DistributionParameters";
+import { BASE_URL } from "../../../constants/api";
 import { Dropdown } from "semantic-ui-react";
 
 const headerProps = {
@@ -62,7 +62,7 @@ const initialState = {
     storage_time: { distributionName: null, parameters: [] },
   }
 };
-export default class SimulationData extends Component {
+export default class Simulate extends Component {
   state = { ...initialState };
 
   constructor() {
@@ -147,11 +147,12 @@ export default class SimulationData extends Component {
       }
     })
       .then((resp) => {
-        console.log(resp) // TODO: Implement it
+        console.log(resp);
+        alert('The processing was successfully done!')  // TODO: Implement it
       })
       .catch((err) => {
-        alert(`Something Went Wrong\n\n${err}`)
-        console.log(err)
+        console.log(err);
+        alert(`Something Went Wrong\n\n${err}`);
       });
   }
 

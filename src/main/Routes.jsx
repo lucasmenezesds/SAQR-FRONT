@@ -3,7 +3,7 @@ import { Switch, Route, Redirect } from 'react-router';
 
 
 import Home from '../components/Home';
-import SimulationData from '../components/SimulationData';
+import SimulationData from '../components/Simulation/Simulate';
 import Graphs from '../components/Graphs/Graphs';
 
 export default (props) => (
