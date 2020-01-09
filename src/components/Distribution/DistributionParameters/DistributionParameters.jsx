@@ -51,30 +51,30 @@ class DistributionParameters extends Component {
 
   parameterDiv(param, index) {
     return (
-      // <div className="form-group" >
-      <div className="" key={param.id}>
-        <Popup
-          content={param.meaning}
-          trigger={(
-            <p>{param.symbol}</p>
-          )}
-        />
-        <Input
-          type='number'
-          id={param.id}
-          className="parameterInput text-center"
-          placeholder={10}
-          name={param.name}
-          onChange={(event, { id, name, value }) => {
-            const distributionNameToSend = this.props.parametersList.distributionName;
-            const stepNameToSend = this.props.stepName;
+      <div className="form-group" key={param.id}>
+        <div className="form-group distribution-parameters text-center">
+          <Popup
+            content={param.meaning}
+            trigger={(
+              <p>{param.symbol}</p>
+            )}
+          />
+          <Input
+            type='number'
+            id={param.id}
+            className="parameterInput text-center"
+            placeholder={10}
+            name={param.name}
+            onChange={(event, { id, name, value }) => {
+              const distributionNameToSend = this.props.parametersList.distributionName;
+              const stepNameToSend = this.props.stepName;
 
-            this.updateParametersList(id, name, value, stepNameToSend, distributionNameToSend);
-            this.props.updateStepsParameters(this.props.stepName, distributionNameToSend, this.state.parameters[stepNameToSend][distributionNameToSend].parametersData);
-          }}
-        />
+              this.updateParametersList(id, name, value, stepNameToSend, distributionNameToSend);
+              this.props.updateStepsParameters(this.props.stepName, distributionNameToSend, this.state.parameters[stepNameToSend][distributionNameToSend].parametersData);
+            }}
+          />
+        </div>
       </div>
-      // </div>
     );
   }
 
