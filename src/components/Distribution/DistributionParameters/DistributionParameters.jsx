@@ -18,35 +18,35 @@ class DistributionParameters extends Component {
   }
 
   updateParametersList(receivedId, receivedName, receivedValue, stepName, distributionName) {
-    const currentState = { ...this.state };
-    const deliveryStepObj = currentState.parameters;
+    const { parameters } = { ...this.state };
+    const currentState = parameters;
 
-    if (!deliveryStepObj[stepName]) {
-      deliveryStepObj[stepName] = {};
+    if (!currentState[stepName]) {
+      currentState[stepName] = {};
     }
 
-    if (!deliveryStepObj[stepName][distributionName]) {
-      deliveryStepObj[stepName][distributionName] = { distributionName: distributionName, parametersData: [] }
+    if (!currentState[stepName][distributionName]) {
+      currentState[stepName][distributionName] = { distributionName: distributionName, parametersData: [] }
     }
 
-    const index = deliveryStepObj[stepName][distributionName].parametersData.findIndex((parameterElement) => {
+    const index = currentState[stepName][distributionName].parametersData.findIndex((parameterElement) => {
       return parameterElement.id === receivedId
     });
 
     if (index !== -1) {
-      deliveryStepObj[stepName][distributionName].parametersData[index].name = receivedName;
-      deliveryStepObj[stepName][distributionName].parametersData[index].value = receivedValue;
+      currentState[stepName][distributionName].parametersData[index].name = receivedName;
+      currentState[stepName][distributionName].parametersData[index].value = receivedValue;
 
-      this.setState({ parametersData: deliveryStepObj })
+      this.setState({ parametersData: currentState })
     } else {
       const newParamObj = this.createParameterObj(receivedId, receivedName, receivedValue);
-      const params = deliveryStepObj[stepName][distributionName].parametersData;
+      const params = currentState[stepName][distributionName].parametersData;
 
       params.push(newParamObj);
-      deliveryStepObj[stepName][distributionName].parametersData = params;
+      currentState[stepName][distributionName].parametersData = params;
     }
 
-    this.setState({ parameters: deliveryStepObj })
+    this.setState({ parameters: currentState })
   }
 
   parameterDiv(param, index) {

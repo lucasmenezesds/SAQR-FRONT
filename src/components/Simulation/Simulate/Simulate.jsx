@@ -70,60 +70,16 @@ export default class Simulate extends Component {
     this.updateSimulationPayloadStepsData = this.updateSimulationPayloadStepsData.bind(this)
   }
 
-
-  clearStepDistributionMethodData(stepName) {
-    const index = this.state.simulationPayload.data.steps.findIndex((element) => {
-      return element.delivery_step === stepName
-    });
-
-    if (index !== -1) {
-      const deliverySteps = { ...this.state.simulationPayload.data.steps };
-      deliverySteps[index].distribution_method = initialDistributionMethodObj();
-
-      this.setState({ deliverySteps })
-    }
-  }
-
-  updateSimulationPayloadStepsData(deliveryStep, distributionName, distributionParameters) {
-    const index = this.state.simulationPayload.data.steps.findIndex((element) => {
-      return element.delivery_step === deliveryStep
-    });
-
-    if (index !== -1) {
-      const deliveryStepObjs = { ...this.state.simulationPayload.data.steps };
-      deliveryStepObjs[index].distribution_method.name = distributionName;
-      deliveryStepObjs[index].distribution_method.parameters = distributionParameters;
-
-      this.setState({ deliveryStepObjs })
-    }
-  }
-
-  updateStepsDistributionsParametersList(stepName, distributionName) {
-    this.clearStepDistributionMethodData(stepName);
-
-    const index = this.state.listOfStatisticalMethods.findIndex((element) => {
-      return element.value === distributionName
-    });
-
-    if (index !== -1) {
-      const stepsDistribution = { ...this.state.stepsDistributionsParametersList };
-      stepsDistribution[stepName].parameters = this.state.listOfStatisticalMethods[index].parameters;
-      stepsDistribution[stepName].distributionName = distributionName;
-
-      this.setState({ stepsDistribution })
-    }
-
-  }
-
-
-  updateField(event) {
-    const simulationData = { ...this.state.simulationPayload };
-    simulationData['data'][event.target.name] = event.target.value;
-
-    this.setState({ simulationData })
+  componentWillUnmount() {
+    const initialStepsDistrbutionsList = initialState['stepsDistributionsParametersList'];
+    this.setState({ listOfStatisticalMethods: [] });
+    this.setState({ stepsDistributionsParametersList: initialStepsDistrbutionsList });
   }
 
   componentDidMount() {
+    const initialStepsDistrbutionsList = initialState['stepsDistributionsParametersList'];
+    this.setState({ listOfStatisticalMethods: [] });
+    this.setState({ stepsDistributionsParametersList: initialStepsDistrbutionsList });
     axios.get(`${BASE_URL}/distribution_methods`, {
       headers: {
         'Accept': 'application/vnd.api+json',
@@ -137,6 +93,68 @@ export default class Simulate extends Component {
         console.log(err) //TODO: check it
       })
   }
+
+  clearStepDistributionMethodData(stepName) {
+    const { simulationPayload } = { ...this.state };
+    const currentState = simulationPayload;
+
+    const index = currentState.data.steps.findIndex((element) => {
+      return element.delivery_step === stepName
+    });
+
+    if (index !== -1) {
+
+      currentState.data.steps[index].distribution_method = initialDistributionMethodObj();
+
+      this.setState({ simulationPayload: currentState })
+    }
+  }
+
+  updateSimulationPayloadStepsData(deliveryStep, distributionName, distributionParameters) {
+    const { simulationPayload } = { ...this.state };
+    const currentState = simulationPayload;
+
+    const index = currentState.data.steps.findIndex((element) => {
+      return element.delivery_step === deliveryStep
+    });
+
+    if (index !== -1) {
+      currentState.data.steps[index].distribution_method.name = distributionName;
+      currentState.data.steps[index].distribution_method.parameters = distributionParameters;
+
+      this.setState({ simulationPayload: currentState })
+    }
+  }
+
+  updateStepsDistributionsParametersList(stepName, distributionName) {
+    // TODO check se nao eh por conta de nao ter const simulationData = { ...this.state.simulationPayload };
+    this.clearStepDistributionMethodData(stepName);
+    const { stepsDistributionsParametersList } = { ...this.state };
+    const currentState = stepsDistributionsParametersList;
+
+    const index = this.state.listOfStatisticalMethods.findIndex((element) => {
+      return element.value === distributionName
+    });
+
+    if (index !== -1) {
+      currentState[stepName].parameters = this.state.listOfStatisticalMethods[index].parameters;
+      currentState[stepName].distributionName = distributionName;
+
+      this.setState({ stepsDistributionsParametersList: currentState })
+    }
+
+  }
+
+
+  updateField(event) {
+    const { simulationPayload } = { ...this.state };
+    const currentState = simulationPayload;
+
+    currentState['data'][event.target.name] = event.target.value;
+
+    this.setState({ simulationPayload: currentState })
+  }
+
 
   sendRequest() {
     const { simulationPayload } = this.state;
