@@ -116,17 +116,12 @@ class GraphPage extends Component {
     }
 
 
-    // console.log('==========================')
-    // console.log(payloadData)
-    // console.log('==========================')
     axios.post(url, payloadData, {
       headers: {
         'Accept': 'application/vnd.api+json',
       }
     })
       .then((resp) => {
-        console.log(resp);
-        // const { simulationData } = { ...this.state };
         const currentState = resp.data.data;
         const confidenceValues = this.state.graphPayload.data["confidence-option"].values;
 
