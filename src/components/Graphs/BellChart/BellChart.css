@@ -40,3 +40,11 @@
 .highcharts-data-table tr:hover {
     background: #f1f7ff;
 }
+
+.span-text {
+    font-weight: 700;
+}
+
+.add-left-padding-15 {
+    padding-left: 15px;
+}

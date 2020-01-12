@@ -25,9 +25,9 @@ const initialPayload = {
 
 const initialState = {
   confidenceOptions: confidenceOptions,
-  graphData: [],
   graphPayload: initialPayload,
   simulationData: {
+    "graph-div-id": null,
     "data": [],
     "mean": null,
     "std-dev": null,
@@ -36,8 +36,10 @@ const initialState = {
     "max-value": null,
     "min-value": null,
     "number-of-samples": null,
-    "number-of-simulations": null
-  }
+    "number-of-simulations": null,
+    "zones": []
+  },
+  renderGraph: false
 };
 
 
@@ -91,9 +93,9 @@ class GraphPage extends Component {
   }
 
   sendRequest() {
-    const { graphPayload } = this.state;
+    const { graphPayload } = { ...this.state };
     const payloadData = graphPayload;
-    const url = `${BASE_URL}/simulated_data`;
+    const url = `${BASE_URL}/bell_chart_data`;
     const missingValueMessage = 'The value should be bigger than 0';
     const confidenceOption = payloadData['data']['confidence-option'];
 
@@ -124,10 +126,21 @@ class GraphPage extends Component {
     })
       .then((resp) => {
         console.log(resp);
-        alert('The processing was successfully done!')  // TODO: Implement it
+        // const { simulationData } = { ...this.state };
+        const currentState = resp.data.data;
+        const confidenceValues = this.state.graphPayload.data["confidence-option"].values;
+
+        currentState["simulation-id"] = this.state.graphPayload.data["simulation-id"];
+        currentState["graph-div-id"] = `${this.state.graphPayload.data["simulation-id"]}-${confidenceValues.from}-${confidenceValues.to}`;
+
+        this.setState({ simulationData: currentState });
+        this.setState({ renderGraph: true });
+
       })
       .catch((err) => {
         console.log(err);
+        this.setState({ renderGraph: false });
+
         alert(`Something Went Wrong\n\n${err}`);
       });
 
@@ -179,11 +192,10 @@ class GraphPage extends Component {
 
             </div>
           </div>
-
-          <BellChart graphData={this.state.graphData} confidenceRange={this.state.confidenceRange}/>
-
         </div>
 
+        <BellChart simulationData={this.state.simulationData}
+                   render={this.state.renderGraph}/>
 
       </Main>
     );

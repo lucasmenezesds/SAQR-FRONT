@@ -1,4 +1,7 @@
 import React, { Component } from 'react';
+import './BellChart.css';
+import { Popup } from 'semantic-ui-react';
+
 import axios from "axios";
 import { BASE_URL } from "../../../constants/api";
 
@@ -7,7 +10,6 @@ import HighchartsReact from 'highcharts-react-official';
 import highchartBellCurve from 'highcharts/modules/histogram-bellcurve';
 
 highchartBellCurve(Highcharts);
-
 
 // const pointsInIntervalNumber = 5;
 // const data = [3.5, 3, 3.2, 3.1, 3.6, 3.9, 3.4, 3.4, 2.9, 3.1, 3.7, 3.4, 3, 3, 4,
@@ -21,6 +23,9 @@ highchartBellCurve(Highcharts);
 //   2.8, 3, 2.8, 3, 2.8, 3.8, 2.8, 2.8, 2.6, 3, 3.4, 3.1, 3, 3.1, 3.1, 3.1, 2.7,
 //   3.2, 3.3, 3, 2.5, 3, 3.4, 3];
 
+const GRAPHS_BLUE = '#7cb5ec';
+const GRAPHS_GREEN = '#90ed7d';
+const GRAPHS_ORANGE = '#f7a35c';
 
 const pointsInIntervalNumber = 5;
 const defaultGraphOptions = {
@@ -93,19 +98,19 @@ const defaultGraphOptions = {
       intervals: 4,
       pointsInInterval: pointsInIntervalNumber,
       zoneAxis: 'x',
-      zones: [], // TODO: aqui eu calculo o Z e METO O LOCO FAZENDO OS BAGUI FICAR BONITINHO
-      //   {
-      //     value: 114.54853768983546,
-      //   },
-      //   {
-      //     value: 114.54853768983546,
-      //     color: '#acf19d',
-      //   },
-      //   {
-      //     value: 115.61940570351564,
-      //     color: '#acf19d',
-      //   },
-      // ],
+      zones: null, // TODO: aqui eu calculo o Z e METO O LOCO FAZENDO OS BAGUI FICAR BONITINHO
+      // //   {
+      // //     value: 114.54853768983546,
+      // //   },
+      // //   {
+      // //     value: 114.54853768983546,
+      // //     color: '#acf19d',
+      // //   },
+      // //   {
+      // //     value: 115.61940570351564,
+      // //     color: '#acf19d',
+      // //   },
+      // // ],
     },
     {
       name: 'Data',
@@ -127,41 +132,77 @@ const initialState = { render: false, bellOptions: defaultGraphOptions };
 class SimulatedDataList extends Component {
   state = { ...initialState };
 
-  componentDidMount() {
+  bellChartData() {
+    const { bellOptions } = { ...this.state };
+    const currentState = bellOptions;
+    const simulationData = this.props.simulationData;
 
+    // currentState.series[0]['zones'] = tsimulationData.zone;
+    currentState.series[1]['data'] = simulationData.data;
 
-    axios.get(`${BASE_URL}/simulate_deliveries_list`, {
-      headers: {
-        'Accept': 'application/vnd.api+json',
-      }
-    })
-      .then(resp => {
-        this.setState({ simulatedDataList: resp.data.data })
-      })
-      .catch(err => {
-        console.log("simulate_deliveries_list CATCH");
-        console.log(err) //TODO: check it
-      })
-  }
-
-  simulatedDataDropdown() {
     return (
-      <div>
+      <div key={simulationData["graph-div-id"]}>
         <hr/>
-        <HighchartsReact highcharts={Highcharts} options={this.state.graphOptions}/>
+        <div className='form'>
+          <h3 className='add-left-padding-15'>Distribution Data</h3>
+          <div className='row'>
+            <div className='col-5 col-md-5'>
+            <div className="form-group col-11 col-md-11">
+              <div>
+                <p><span className='span-text'>Mean:</span> {simulationData["mean"]}</p>
+                <Popup
+                  content='Standard Deviation'
+                  trigger={(
+                    <p><span className='span-text'>Std Dev:</span> {simulationData["std_dev"]}</p>
+                  )}
+                />
+                <p><span className='span-text'>Variance:</span> {simulationData["variance"]}</p>
+              </div>
+            </div>
+            </div>
+            <div className='col-5 col-md-5'>
+            <div className='form-group col-11 col-md-11'>
+              <div>
+                <Popup
+                  content='Biggest value of the sample'
+                  trigger={(
+                    <p><span className='span-text'>Max Value:</span> {simulationData["max_value"]}</p>
+                  )}
+                />
+                <Popup
+                  content='Smallest value of the sample'
+                  trigger={(
+                    <p><span className='span-text'>Min Value:</span> {simulationData["min_value"]}</p>
+                  )}
+                />
+                <Popup
+                  content='Size of the sample'
+                  trigger={(
+                    <p><span className='span-text'>Data Size:</span> {simulationData["data_size"]}</p>
+                  )}
+                />
+              </div>
+            </div>
+          </div>
+          </div>
+        </div>
+        <hr/>
+        <div className='form'>
+          <HighchartsReact highcharts={Highcharts} options={currentState}/>
+        </div>
       </div>
     );
   }
 
   render() {
-    if (!this.state.render) {
+    if (!this.props.render) {
       return null;
     }
 
     return (
       <>
         {''}
-        {this.simulatedDataDropdown()}
+        {this.bellChartData()}
         {''}
       </>
     );
