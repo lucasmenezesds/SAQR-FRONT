@@ -1,0 +1,6 @@
+{
+  "name": "simulated-data-list",
+  "version": "0.0.1",
+  "private": true,
+  "main": "SimulatedDataList.jsx"
+}

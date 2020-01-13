@@ -15,10 +15,10 @@ export default (props) => (
         {' '}
         Simulate
       </Link>
-      <Link to="/graphs">
+      <Link to="/graph">
         <i className="fa fa-area-chart" aria-hidden="true" />
         {' '}
-        Graphs
+        Graph
       </Link>
       {/* <Link to="/previous_simulations"> */}
       {/*  <i className="fa fa-database" aria-hidden="true" /> */}
