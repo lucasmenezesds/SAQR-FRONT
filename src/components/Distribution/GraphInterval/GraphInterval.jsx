@@ -31,8 +31,13 @@ class GraphInterval extends Component {
 
     intervalOptionArray[indexPos]['value'] = receivedValue;
 
-    if (receivedValue > 95) {
-      alert('The maximum value is 95, sorry');
+    if (receivedValue > 100) {
+      alert('The maximum value is 100, sorry');
+      return
+    }
+
+    if (receivedValue < 1) {
+      alert('The minimum value is 1, sorry');
       return
     }
 

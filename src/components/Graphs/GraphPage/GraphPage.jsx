@@ -7,7 +7,7 @@ import Main from '../../Template/Main';
 import SimulatedDataList from '../../Simulation/SimulatedDataList';
 import axios from "axios";
 import { BASE_URL } from "../../../constants/api";
-import { Dropdown } from "semantic-ui-react";
+import { Dropdown, Input, Popup } from "semantic-ui-react";
 import GraphInterval from "../../Distribution/GraphInterval";
 
 const intervalOptionsState = [
@@ -26,7 +26,9 @@ const initialPayload = {
 const initialState = {
   intervalOptions: intervalOptionsState,
   graphPayload: initialPayload,
+  confidenceIntervalValue: 95,
   simulationData: {
+    "confidence-interval-values": {},
     "graph-div-id": null,
     "data": [],
     "mean": null,
@@ -90,6 +92,21 @@ class GraphPage extends Component {
     }
 
     this.setState({ graphPayload: currentState })
+  }
+
+  updateConfidenceIntervalState(receivedValue) {
+
+    if (receivedValue > 100) {
+      alert('The maximum value is 100, sorry');
+      return
+    }
+
+    if (receivedValue < 1) {
+      alert('The minimum value is 1, sorry');
+      return
+    }
+
+    this.setState({ confidenceIntervalValue: receivedValue })
   }
 
   sendRequest() {
@@ -172,9 +189,28 @@ class GraphPage extends Component {
                   this.updateIntervalOptionState(value)
                 }}
               />
+              <div className={'top-padding-20'}>
+                <Popup
+                  content='If Empty, default is 95%'
+                  trigger={(
+                    <label>Confidence Interval for the μ</label>
+                  )}
+                />
+                <Input
+                  label={'α'}
+                  type='number'
+                  id={'confidenceInterval'}
+                  className="confidenceInterval text-center"
+                  placeholder={95}
+                  name={'confidenceInterval'}
+                  onChange={(event, { value }) => {
+                    this.updateConfidenceIntervalState(value);
+                  }}
+                />
+              </div>
             </div>
             <GraphInterval intervalOption={this.state.graphPayload.data["interval-option"].option}
-                                updateIntervalParameter={this.updateIntervalData}> </GraphInterval>
+                           updateIntervalParameter={this.updateIntervalData}> </GraphInterval>
           </div>
           <div className="row">
             <div className="col-12 d-flex justify-content-end">

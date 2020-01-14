@@ -10,7 +10,7 @@ highchartBellCurve(Highcharts);
 
 const GRAPHS_BLUE = '#7cb5ec';
 const GRAPHS_GREEN = '#90ed7d';
-const GRAPHS_ORANGE = '#f7a35c';
+// const GRAPHS_ORANGE = '#f7a35c';
 
 const pointsInIntervalNumber = 5;
 const defaultGraphOptions = {
@@ -157,9 +157,11 @@ class SimulatedDataList extends Component {
                     )}
                   />
                   <Popup
-                    content='Size of the sample'
+                    content='Probability of α to the μ be in this interval'
                     trigger={(
-                      <p><span className='span-text'>Data Size:</span> {simulationData["data_size"]}</p>
+                      <p><span
+                        className='span-text2'>C.I for the μ:</span> {`[ ${simulationData['mean_intervals']['min_interval']} ; ${simulationData['mean_intervals']['max_interval']} ]`}
+                      </p>
                     )}
                   />
                 </div>

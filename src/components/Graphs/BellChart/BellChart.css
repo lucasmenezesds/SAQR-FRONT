@@ -42,7 +42,12 @@
 }
 
 .span-text {
-    font-weight: 700;
+    font-weight: 600;
+}
+
+.span-text2 {
+    font-weight: 900;
+    color: crimson;
 }
 
 .add-left-padding-15 {
