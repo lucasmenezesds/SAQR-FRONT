@@ -1,10 +1,10 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Input } from 'semantic-ui-react';
-import './ConfidenceInterval.css';
+import './GraphInterval.css';
 
 const initialState = {
-  confidenceParameters: {
+  intervalParameters: {
     until: [
       { id: 0, label: '', value: null, placeholder: 90, name: 'untilValue' }
     ],
@@ -16,43 +16,44 @@ const initialState = {
 };
 
 // eslint-disable-next-line react/prefer-stateless-function
-class ConfidenceInterval extends Component {
+class GraphInterval extends Component {
   state = { ...initialState };
 
   componentWillUnmount() {
     this.setState({ state: initialState });
   }
 
-  updateConfidenceParameterState(receivedValue, indexPos) {
+  updateIntervalParameterState(receivedValue, indexPos) {
     const currentState = { ...this.state };
-    const confidenceOption = this.props.confidenceOption;
-    const confidenceParameters = currentState.confidenceParameters;
-    const confidenceOptionArray = confidenceParameters[confidenceOption];
+    const intervalOption = this.props.intervalOption;
+    const intervalParameters = currentState.intervalParameters;
+    const intervalOptionArray = intervalParameters[intervalOption];
 
-    confidenceOptionArray[indexPos]['value'] = receivedValue;
+    intervalOptionArray[indexPos]['value'] = receivedValue;
 
     if (receivedValue > 95) {
       alert('The maximum value is 95, sorry');
       return
     }
 
-    this.setState({ confidenceParameters })
+    this.setState({ intervalParameters })
   }
 
-  confidenceIntervalDiv(param, index) {
+
+  intervalRangeDiv(param, index) {
     return (
       <div className="form-group" key={param.id}>
-        <div className="form-group confidence-parameters text-center">
+        <div className="form-group interval-parameters text-center">
           <p>{`${param.label} %`}</p>
           <Input
             type='number'
             id={param.id}
-            className="confidenceInput text-center"
+            className="intervalInput text-center"
             placeholder={param.placeholder}
             name={param.name}
             onChange={(event, { id, name, value }) => {
-              this.updateConfidenceParameterState(value, index);
-              this.props.updateConfidenceParameter(this.state.confidenceParameters)
+              this.updateIntervalParameterState(value, index);
+              this.props.updateIntervalParameter(this.state.intervalParameters)
             }}
           />
         </div>
@@ -61,9 +62,9 @@ class ConfidenceInterval extends Component {
   }
 
   render() {
-    const { confidenceOption } = this.props;
+    const { intervalOption } = this.props;
 
-    if (!confidenceOption) {
+    if (!intervalOption) {
       return (<></>);
     }
 
@@ -71,8 +72,8 @@ class ConfidenceInterval extends Component {
       <>
         {' '}
         {
-          this.state.confidenceParameters[confidenceOption].map((currentParam, index) => {
-            return this.confidenceIntervalDiv(currentParam, index)
+          this.state.intervalParameters[intervalOption].map((currentParam, index) => {
+            return this.intervalRangeDiv(currentParam, index)
           })
         }
         {' '}
@@ -81,9 +82,9 @@ class ConfidenceInterval extends Component {
   }
 }
 
-ConfidenceInterval.propTypes = {
+GraphInterval.propTypes = {
   // eslint-disable-next-line react/forbid-prop-types
-  updateConfidenceParameter: PropTypes.func.isRequired,
+  updateIntervalParameter: PropTypes.func.isRequired,
 };
 
-export default ConfidenceInterval;
+export default GraphInterval;

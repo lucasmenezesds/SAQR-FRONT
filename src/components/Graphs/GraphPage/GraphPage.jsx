@@ -8,9 +8,9 @@ import SimulatedDataList from '../../Simulation/SimulatedDataList';
 import axios from "axios";
 import { BASE_URL } from "../../../constants/api";
 import { Dropdown } from "semantic-ui-react";
-import ConfidenceInterval from "../../Distribution/ConfidenceInterval";
+import GraphInterval from "../../Distribution/GraphInterval";
 
-const confidenceOptions = [
+const intervalOptionsState = [
   { key: 'until', value: 'until', text: 'Until' },
   { key: 'between', value: 'between', text: 'Between' },
 ];
@@ -18,13 +18,13 @@ const confidenceOptions = [
 const initialPayload = {
   data: {
     "simulation-id": null,
-    "confidence-option": { option: null, values: { from: null, to: null } }
+    "interval-option": { option: null, values: { from: null, to: null } }
   }
 
 };
 
 const initialState = {
-  confidenceOptions: confidenceOptions,
+  intervalOptions: intervalOptionsState,
   graphPayload: initialPayload,
   simulationData: {
     "graph-div-id": null,
@@ -48,7 +48,7 @@ class GraphPage extends Component {
 
   constructor(props) {
     super(props);
-    this.updateConfidenceData = this.updateConfidenceData.bind(this);
+    this.updateIntervalData = this.updateIntervalData.bind(this);
     this.updateSimulationIdState = this.updateSimulationIdState.bind(this);
   }
 
@@ -57,11 +57,11 @@ class GraphPage extends Component {
     this.setState({ state: initialState });
   }
 
-  updateConfidenceOptionState(confidenceOptionValue) {
+  updateIntervalOptionState(intervalOptionValue) {
     const { graphPayload } = { ...this.state };
     const currentState = graphPayload;
 
-    currentState['data']['confidence-option']['option'] = confidenceOptionValue;
+    currentState['data']['interval-option']['option'] = intervalOptionValue;
 
     this.setState({ graphPayload: currentState })
   }
@@ -75,18 +75,18 @@ class GraphPage extends Component {
     this.setState({ graphPayload: currentState })
   }
 
-  updateConfidenceData(confidenceParametersObj) {
+  updateIntervalData(intervalParametersObj) {
     const { graphPayload } = { ...this.state };
     const currentState = graphPayload;
 
-    const option = currentState['data']['confidence-option']['option'];
+    const option = currentState['data']['interval-option']['option'];
 
     if (option === 'between') {
-      currentState['data']['confidence-option'].values.from = confidenceParametersObj[option][0]['value'];
-      currentState['data']['confidence-option'].values.to = confidenceParametersObj[option][1]['value'];
+      currentState['data']['interval-option'].values.from = intervalParametersObj[option][0]['value'];
+      currentState['data']['interval-option'].values.to = intervalParametersObj[option][1]['value'];
     } else {
-      currentState['data']['confidence-option'].values.from = confidenceParametersObj[option][0]['value'];
-      currentState['data']['confidence-option'].values.to = null;
+      currentState['data']['interval-option'].values.from = intervalParametersObj[option][0]['value'];
+      currentState['data']['interval-option'].values.to = null;
     }
 
     this.setState({ graphPayload: currentState })
@@ -97,20 +97,20 @@ class GraphPage extends Component {
     const payloadData = graphPayload;
     const url = `${BASE_URL}/bell_chart_data`;
     const missingValueMessage = 'The value should be bigger than 0';
-    const confidenceOption = payloadData['data']['confidence-option'];
+    const intervalOption = payloadData['data']['interval-option'];
 
-    if (confidenceOption.option === 'between') {
-      if (!confidenceOption.values.to) {
+    if (intervalOption.option === 'between') {
+      if (!intervalOption.values.to) {
         alert(missingValueMessage);
         return;
       }
 
-      if (confidenceOption.values.from >= confidenceOption.values.to) {
+      if (intervalOption.values.from >= intervalOption.values.to) {
         alert('The value of "From" field should positive bigger than 0 and not be equal or bigger than "To"');
         return;
       }
     }
-    if (confidenceOption.values.from <= 0) {
+    if (intervalOption.values.from <= 0) {
       alert(missingValueMessage);
       return;
     }
@@ -123,10 +123,10 @@ class GraphPage extends Component {
     })
       .then((resp) => {
         const currentState = resp.data.data;
-        const confidenceValues = this.state.graphPayload.data["confidence-option"].values;
+        const intervalValues = this.state.graphPayload.data["interval-option"].values;
 
         currentState["simulation-id"] = this.state.graphPayload.data["simulation-id"];
-        currentState["graph-div-id"] = `${this.state.graphPayload.data["simulation-id"]}-${confidenceValues.from}-${confidenceValues.to}`;
+        currentState["graph-div-id"] = `${this.state.graphPayload.data["simulation-id"]}-${intervalValues.from}-${intervalValues.to}`;
 
         this.setState({ simulationData: currentState });
         this.setState({ renderGraph: true });
@@ -159,22 +159,22 @@ class GraphPage extends Component {
             </div>
 
             <div className="form-group  col-2 col-md-2">
-              <h3>Confidence Interval</h3>
-              <label>Choose an Interval</label>
+              <h3>Graph Area</h3>
+              <label>Choose an interval to highlight</label>
               <Dropdown
-                name="confidenceOption"
+                name="intervalOption"
                 placeholder="Until"
                 fluid
                 search
                 selection
-                options={this.state.confidenceOptions}
+                options={this.state.intervalOptions}
                 onChange={(event, { value }) => {
-                  this.updateConfidenceOptionState(value)
+                  this.updateIntervalOptionState(value)
                 }}
               />
             </div>
-            <ConfidenceInterval confidenceOption={this.state.graphPayload.data["confidence-option"].option}
-                                updateConfidenceParameter={this.updateConfidenceData}> </ConfidenceInterval>
+            <GraphInterval intervalOption={this.state.graphPayload.data["interval-option"].option}
+                                updateIntervalParameter={this.updateIntervalData}> </GraphInterval>
           </div>
           <div className="row">
             <div className="col-12 d-flex justify-content-end">
