@@ -5,6 +5,8 @@ import './Simulate.css';
 import DistributionParameters from "../../Distribution/DistributionParameters";
 import { BASE_URL } from "../../../constants/api";
 import { Dropdown } from "semantic-ui-react";
+import LoadingOverlay from 'react-loading-overlay';
+import SyncLoader from 'react-spinners/SyncLoader'
 
 const headerProps = {
   icon: 'calculator',
@@ -52,6 +54,7 @@ const initialPayload = {
 
 
 const initialState = {
+  overlay: false,
   simulationPayload: initialPayload,
   listOfStatisticalMethods: [],
   stepsDistributionsParametersList: {
@@ -145,7 +148,6 @@ export default class Simulate extends Component {
 
   }
 
-
   updateField(event) {
     const { simulationPayload } = { ...this.state };
     const currentState = simulationPayload;
@@ -155,8 +157,8 @@ export default class Simulate extends Component {
     this.setState({ simulationPayload: currentState })
   }
 
-
   sendRequest() {
+    this.setState({ overlay: true });
     const { simulationPayload } = this.state;
     const url = `${BASE_URL}/simulate_deliveries`;
     axios.post(url, simulationPayload, {
@@ -165,10 +167,12 @@ export default class Simulate extends Component {
       }
     })
       .then((resp) => {
+        this.setState({ overlay: false });
         console.log(resp);
         alert('The processing was successfully done!')  // TODO: Implement it
       })
       .catch((err) => {
+        this.setState({ overlay: false });
         console.log(err);
         alert(`Something Went Wrong\n\n${err}`);
       });
@@ -331,9 +335,21 @@ export default class Simulate extends Component {
   render() {
     return (
       <Main {...headerProps}>
-        {this.renderForm()}
+        <LoadingOverlay
+          active={this.state.overlay}
+          spinner={<SyncLoader/>}
+          text='Processing your simulation...'
+          styles={{
+            overlay: (base) => ({
+              ...base,
+              background: 'rgba(0, 0, 0, 0)',
+              color: "#000000"
+            }),
+          }}
+        >
+          {this.renderForm()}
+        </LoadingOverlay>
       </Main>
-
     );
   }
 }
