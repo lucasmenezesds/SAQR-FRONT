@@ -4,7 +4,7 @@ import Main from '../../Template/Main';
 import './Simulate.css';
 import DistributionParameters from "../../Distribution/DistributionParameters";
 import { BASE_URL } from "../../../constants/api";
-import { Dropdown } from "semantic-ui-react";
+import { Dropdown, Input } from "semantic-ui-react";
 import LoadingOverlay from 'react-loading-overlay';
 import SyncLoader from 'react-spinners/SyncLoader'
 
@@ -27,6 +27,8 @@ const initialPayload = {
   "data": {
     "number_of_simulations": 100,
     "number_of_samples": 5000,
+    "start_seed_value": 120,
+    "end_seed_value": 720,
     "steps": [
       {
         "delivery_step": "picking_time",
@@ -130,7 +132,6 @@ export default class Simulate extends Component {
   }
 
   updateStepsDistributionsParametersList(stepName, distributionName) {
-    // TODO check se nao eh por conta de nao ter const simulationData = { ...this.state.simulationPayload };
     this.clearStepDistributionMethodData(stepName);
     const { stepsDistributionsParametersList } = { ...this.state };
     const currentState = stepsDistributionsParametersList;
@@ -169,7 +170,7 @@ export default class Simulate extends Component {
       .then((resp) => {
         this.setState({ overlay: false });
         console.log(resp);
-        alert('The processing was successfully done!')  // TODO: Implement it
+        alert('The processing was successfully done!')
       })
       .catch((err) => {
         this.setState({ overlay: false });
@@ -184,20 +185,40 @@ export default class Simulate extends Component {
       <div className="form">
         <div className="row simulation-steps">
           <div className="col-2 col-md-2">
-            <div className="form-group">
+            <div className="form-group text-center">
               <label>Number of Simulations</label>
-              <input type='number' className="form-control text-center"
+              <Input type='number' className="text-center"
                      placeholder={this.state.simulationPayload.data.number_of_simulations}
                      name="number_of_simulations"
                      onChange={e => this.updateField(e)}/>
             </div>
           </div>
-          <div className="col-6 col-md-3">
-            <div className="form-group">
+          <div className="col-3 col-md-3">
+            <div className="form-group text-center">
               <label>Number of generations for each simulation</label>
-              <input type="number" className="form-control text-center"
+              <Input type="number" className="col-11 col-md-11 text-center"
                      placeholder={this.state.simulationPayload.data.number_of_samples}
                      name="number_of_samples"
+                     onChange={e => this.updateField(e)}/>
+
+            </div>
+          </div>
+          <div className="col-2 col-md-2">
+            <div className="form-group text-center">
+              <label>Start Value for the Seed</label>
+              <Input type="number" className="text-center"
+                     placeholder={this.state.simulationPayload.data.start_seed_value}
+                     name="start_seed_value"
+                     onChange={e => this.updateField(e)}/>
+
+            </div>
+          </div>
+          <div className="col-2 col-md-2">
+            <div className="form-group text-center">
+              <label>End Value for the Seed</label>
+              <Input type="number" className="text-center"
+                     placeholder={this.state.simulationPayload.data.end_seed_value}
+                     name="end_seed_value"
                      onChange={e => this.updateField(e)}/>
 
             </div>
@@ -211,7 +232,7 @@ export default class Simulate extends Component {
               <label>Select a distribution for this step</label>
               <Dropdown
                 name="picking_time"
-                placeholder="Exponential"
+                placeholder="Choose an distribution..."
                 fluid
                 search
                 selection
@@ -234,7 +255,7 @@ export default class Simulate extends Component {
               <label>Select a distribution for this step</label>
               <Dropdown
                 name="load_time"
-                placeholder="Exponential"
+                placeholder="Choose an distribution..."
                 fluid
                 search
                 selection
@@ -257,7 +278,7 @@ export default class Simulate extends Component {
               <label>Select a distribution for this step</label>
               <Dropdown
                 name="transportation_time"
-                placeholder="Exponential"
+                placeholder="Choose an distribution..."
                 fluid
                 search
                 selection
@@ -280,7 +301,7 @@ export default class Simulate extends Component {
               <label>Select a distribution for this step</label>
               <Dropdown
                 name="receive_time"
-                placeholder="Exponential"
+                placeholder="Choose an distribution..."
                 fluid
                 search
                 selection
@@ -303,7 +324,7 @@ export default class Simulate extends Component {
               <label>Select a distribution for this step</label>
               <Dropdown
                 name="storage_time"
-                placeholder="Exponential"
+                placeholder="Choose an distribution..."
                 fluid
                 search
                 selection
