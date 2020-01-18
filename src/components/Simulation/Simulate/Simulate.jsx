@@ -195,7 +195,7 @@ export default class Simulate extends Component {
           </div>
           <div className="col-3 col-md-3">
             <div className="form-group text-center">
-              <label>Number of generations for each simulation</label>
+              <label>Number of samples for each simulation</label>
               <Input type="number" className="col-11 col-md-11 text-center"
                      placeholder={this.state.simulationPayload.data.number_of_samples}
                      name="number_of_samples"
@@ -205,7 +205,7 @@ export default class Simulate extends Component {
           </div>
           <div className="col-2 col-md-2">
             <div className="form-group text-center">
-              <label>Start Value for the Seed</label>
+              <label>Min. value for the seed</label>
               <Input type="number" className="text-center"
                      placeholder={this.state.simulationPayload.data.start_seed_value}
                      name="start_seed_value"
@@ -215,7 +215,7 @@ export default class Simulate extends Component {
           </div>
           <div className="col-2 col-md-2">
             <div className="form-group text-center">
-              <label>End Value for the Seed</label>
+              <label>Max. value for the seed</label>
               <Input type="number" className="text-center"
                      placeholder={this.state.simulationPayload.data.end_seed_value}
                      name="end_seed_value"

@@ -164,7 +164,7 @@ class GraphPage extends Component {
       <Main
         icon="area-chart"
         title="GraphPage"
-        subtitle="SAQR - Sistema de Análise Quantitativa de Risco - Quantitative Risk Analysis System"
+        subtitle="Here you'll be able to check Bell's Chart Graph for the selected simulation"
       >
         <div className="form">
           <div className="row simulation-data">

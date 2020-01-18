@@ -14,9 +14,9 @@ const distributionNames = {
 const stepsNames = {
   'picking_time': 'Picking Time',
   'load_time': 'Load Time',
-  'transportation_time': 'Transsportation Time',
+  'transportation_time': 'Transportation Time',
   'receive_time': 'Receive Time',
-  'storage_time': 'Store Time',
+  'storage_time': 'Storing Time',
 };
 
 const parameterSymbols = {
