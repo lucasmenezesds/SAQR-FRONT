@@ -113,7 +113,8 @@ class Home extends Component {
           <p>
             Esta secção é onde poderá acessar os dados das simulações realizadas previamente.
             <br />
-            Aqui conseguirá verificar quantas amostras, simulações foram requisitadas em determinada simulação, além de
+            Aqui conseguirá verificar quantas amostras e numero de simulações foram requisitadas em determinada
+            simulação realizada, além de
             verificar quais distribuições e valores foram utilizados em cada etapa do processo de entrega.
           </p>
           <p />
@@ -126,7 +127,7 @@ class Home extends Component {
         <div className="col-8 col-md-8">
           <h4>Graph</h4>
           <p>
-            A última secção é onde você poderá vizualizar o gráfico da distribuição normal.
+            A última secção é onde você poderá visualizar o gráfico da distribuição normal.
             <br />
             Para exibir o gráfico você precisará de:
             <br />
@@ -137,7 +138,7 @@ class Home extends Component {
             <br />
             - Inserir o nível de confiança para a média (Padrão: 95%)
             <br />
-            - E clicar no para exibir os dados;
+            - E clicar no botão para exibir os dados;
           </p>
           <p />
         </div>
