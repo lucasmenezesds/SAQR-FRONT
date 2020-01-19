@@ -6,11 +6,11 @@ import './GraphInterval.css';
 const initialState = {
   intervalParameters: {
     until: [
-      { id: 0, label: '', value: null, placeholder: 90, name: 'untilValue' }
+      { id: 0, label: '', value: null, name: 'untilValue' }
     ],
     between: [
-      { id: 1, label: 'From', value: null, placeholder: 50, name: 'betweenFrom' },
-      { id: 2, label: 'To', value: null, placeholder: 85, name: 'betweenTo' }
+      { id: 1, label: 'From', value: null, name: 'betweenFrom' },
+      { id: 2, label: 'To', value: null, name: 'betweenTo' }
     ]
   }
 };
@@ -54,7 +54,6 @@ class GraphInterval extends Component {
             type='number'
             id={param.id}
             className="intervalInput text-center"
-            placeholder={param.placeholder}
             name={param.name}
             onChange={(event, { id, name, value }) => {
               this.updateIntervalParameterState(value, index);

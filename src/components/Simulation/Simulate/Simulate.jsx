@@ -21,6 +21,14 @@ const initialDistributionMethodObj = () => {
     "parameters": []
   }
 };
+// TODO: refactor - Duplicated
+const stepsNames = {
+  'picking_time': 'Picking Time',
+  'load_time': 'Load Time',
+  'transportation_time': 'Transportation Time',
+  'receive_time': 'Receive Time',
+  'storage_time': 'Storing Time',
+};
 
 // TODO: refactor
 const initialPayload = {
@@ -161,6 +169,20 @@ export default class Simulate extends Component {
   payloadValidation() {
     // TODO: Add more validations
     const { simulationPayload } = this.state;
+
+    // TODO: refactor and put Form.Field validation later.
+    let alertForTheStep = null;
+    simulationPayload.data['steps'].forEach((step) => {
+      if (!step['distribution_method']['name'] || step['distribution_method']['parameters'].length === 0) {
+        alertForTheStep = step['delivery_step'];
+      }
+    });
+
+    if (alertForTheStep) {
+      this.setState({ overlay: false });
+      alert(`Please check the values on the Step: ${stepsNames[alertForTheStep]}`);
+      return false;
+    }
 
     if (simulationPayload.data['number_of_simulations'] < 30) {
       this.setState({ overlay: false });

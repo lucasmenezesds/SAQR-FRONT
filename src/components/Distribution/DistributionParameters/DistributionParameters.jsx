@@ -63,7 +63,6 @@ class DistributionParameters extends Component {
             type='number'
             id={param.id}
             className="parameterInput text-center"
-            placeholder={10}
             name={param.name}
             onChange={(event, { id, name, value }) => {
               const distributionNameToSend = this.props.parametersList.distributionName;

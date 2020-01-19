@@ -180,7 +180,7 @@ class GraphPage extends Component {
               <label>Choose an interval to highlight</label>
               <Dropdown
                 name="intervalOption"
-                placeholder="Until"
+                placeholder="Select an option"
                 fluid
                 search
                 selection
