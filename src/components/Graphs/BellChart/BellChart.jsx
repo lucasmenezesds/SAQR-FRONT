@@ -145,19 +145,19 @@ class SimulatedDataList extends Component {
               <div className='form-group col-11 col-md-11'>
                 <div>
                   <Popup
-                    content='Biggest value of the sample'
-                    trigger={(
-                      <p><span className='span-text'>Max Value:</span> {simulationData["max_value"]}</p>
-                    )}
-                  />
-                  <Popup
                     content='Smallest value of the sample'
                     trigger={(
                       <p><span className='span-text'>Min Value:</span> {simulationData["min_value"]}</p>
                     )}
                   />
                   <Popup
-                    content='Probability of α to the μ be in this interval'
+                    content='Biggest value of the sample'
+                    trigger={(
+                      <p><span className='span-text'>Max Value:</span> {simulationData["max_value"]}</p>
+                    )}
+                  />
+                  <Popup
+                    content='Confidence Interval; Probability of α to the μ be in this interval'
                     trigger={(
                       <p><span
                         className='span-text2'>C.I for the μ:</span> {`[ ${simulationData['mean_intervals']['min_interval']} ; ${simulationData['mean_intervals']['max_interval']} ]`}

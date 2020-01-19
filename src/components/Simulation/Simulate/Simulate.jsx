@@ -158,10 +158,29 @@ export default class Simulate extends Component {
     this.setState({ simulationPayload: currentState })
   }
 
+  payloadValidation() {
+    // TODO: Add more validations
+    const { simulationPayload } = this.state;
+
+    if (simulationPayload.data['number_of_simulations'] < 30) {
+      this.setState({ overlay: false });
+      alert('Please insert a value bigger than 30 for the number of simulations');
+      return false;
+    }
+
+    return true;
+  }
+
   sendRequest() {
     this.setState({ overlay: true });
     const { simulationPayload } = this.state;
     const url = `${BASE_URL}/simulate_deliveries`;
+
+    if (!this.payloadValidation()) {
+      this.setState({ overlay: false });
+      return;
+    }
+
     axios.post(url, simulationPayload, {
       headers: {
         'Accept': 'application/vnd.api+json',

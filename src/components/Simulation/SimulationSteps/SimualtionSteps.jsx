@@ -84,8 +84,8 @@ class SimulationSteps extends Component {
             <div className="form-group">
               <div>
                 <h5>Seed's Info</h5>
-                <p><span className='span-text'>Seed Start Range Value:</span> {simulationData[""]}</p>
-                <p><span className='span-text'>Seed Final Range Value:</span> {simulationData[""]}</p>
+                <p><span className='span-text'>Seed min. value range:</span> {simulationData["start-seed-value"]}</p>
+                <p><span className='span-text'>Seed max. value range:</span> {simulationData["end-seed-value"]}</p>
               </div>
             </div>
           </div>
