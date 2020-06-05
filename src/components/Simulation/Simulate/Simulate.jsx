@@ -4,11 +4,9 @@ import Main from '../../Template/Main';
 import './Simulate.css';
 import DistributionParameters from '../../Distribution/DistributionParameters';
 import { BASE_URL } from '../../../constants/api';
-import { Dropdown, Input } from 'semantic-ui-react';
+import { Dropdown, Input, Popup } from 'semantic-ui-react';
 import LoadingOverlay from 'react-loading-overlay';
 import SyncLoader from 'react-spinners/SyncLoader'
-import GraphPage from '../../Graphs/GraphPage/GraphPage';
-import { Redirect } from "react-router";
 
 const headerProps = {
   icon: 'calculator',
@@ -219,16 +217,6 @@ export default class Simulate extends Component {
     this.setState({ overlay: true });
     const { simulationPayload, redirectToGraph } = this.state;
     const url = `${BASE_URL}/simulate_deliveries`;
-    if (redirectToGraph) {
-      alert('The processing was successfully done! Select the First Simulation from the list!');
-      // <Redirect to={{ pathname: '/order', state: { id: '123' } }}/>
-      this.props.history.push({
-        pathname: '/graph',
-        state: { redirectOptions: { 'status': true, 'simulation-id': '28' } }
-      });
-
-      return;
-    }
 
     if (!this.payloadValidation()) {
       this.setState({ overlay: false });
@@ -247,7 +235,7 @@ export default class Simulate extends Component {
         const simulation_id = resp['data']['data']['id']
 
         if (redirectToGraph) {
-          alert('The processing was successfully done! Select the First Simulation from the list!')
+          alert('The processing was successfully done! Click Ok to check the Graph.');
           this.props.history.push({
             pathname: '/graph',
             state: { redirectOptions: { 'status': true, 'simulation-id': simulation_id } }
@@ -255,6 +243,7 @@ export default class Simulate extends Component {
 
           return;
         }
+
         alert("The processing was successfully done! Check the Graph's page!");
       })
       .catch((err) => {
@@ -312,7 +301,12 @@ export default class Simulate extends Component {
 
           <div className='col-2 col-md-2'>
             <div className='form-group text-center'>
-              <label>Redirect to Graph Page?</label>
+              <Popup
+                content='Redirect to Graph Page after the simulation is done'
+                trigger={(
+                  <label>Redirect to Graph Page?</label>
+                )}
+              />
               <Input type='checkbox' className='checkbox-center'
                      defaultChecked={this.state.redirectToGraph}
                      name='redirectToGraph'

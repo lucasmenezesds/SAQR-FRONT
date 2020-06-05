@@ -24,7 +24,6 @@ const initialPayload = {
 };
 
 const initialState = {
-  redirectOptions: { 'status': false, 'simulation-id': null },
   intervalOptions: intervalOptionsState,
   graphPayload: initialPayload,
   confidenceIntervalValue: 95,
@@ -42,7 +41,9 @@ const initialState = {
     'number-of-simulations': null,
     'zones': []
   },
-  renderGraph: false
+  renderGraph: false,
+  redirected: false,
+  redirectedSimulationId: null
 };
 
 
@@ -53,13 +54,10 @@ class GraphPage extends Component {
     super(props);
     this.updateIntervalData = this.updateIntervalData.bind(this);
     this.updateSimulationIdState = this.updateSimulationIdState.bind(this);
-
   }
 
   componentDidMount(props) {
     const propsLocationState = this.props.location.state;
-    console.log('propsLocationState')
-    console.log(propsLocationState)
     if (propsLocationState){
       this.processRedirectionData(propsLocationState.redirectOptions);
     }
@@ -70,16 +68,15 @@ class GraphPage extends Component {
   }
 
   processRedirectionData(redirectOptions) {
-    // const redirectOptions = this.props.location.state.redirectOptions;
-    console.log('bang veio que veio');
-
-    if (!redirectOptions['status']) return;
+    if (!redirectOptions['status']) {
+      return;
+    }
 
     const simulationId = redirectOptions['simulation-id']
-    // this.updateSimulationIdState(simulationId)
     this.updateSimulationIdState(simulationId)
-    console.log('simulation id do rolezao')
-    console.log(simulationId)
+    this.setState({redirected: true })
+    this.setState({redirectedSimulationId: simulationId })
+    this.sendRequest()
   }
 
   updateIntervalOptionState(intervalOptionValue) {
@@ -137,13 +134,12 @@ class GraphPage extends Component {
   }
 
   sendRequest() {
-    const { graphPayload, redirectOptions } = { ...this.state };
+    const { graphPayload, redirected,redirectedSimulationId } = { ...this.state };
     const payloadData = graphPayload;
     const url = `${BASE_URL}/bell_chart_data`;
-    // const shouldBeANumberMessage = 'The value should be number, if float with . instead of ,';
 
-    if (redirectOptions['status']) {
-      graphPayload['data']['simulation-id'] = redirectOptions['"simulation-id"']
+    if (redirected) {
+      graphPayload['data']['simulation-id'] = redirectedSimulationId
     }
 
     const intervalOption = payloadData['data']['interval-option'];
@@ -154,23 +150,11 @@ class GraphPage extends Component {
     }
 
     if (intervalOption.option === 'between') {
-      // if (!intervalOption.values.to) {
-      //   alert(missingValueMessage);
-      //   return;
-      // }
-
-
       if (intervalOption.values.from >= intervalOption.values.to) {
         alert("The value of 'From' field should positive bigger than 0 and not be equal or bigger than 'To'");
         return;
       }
-
     }
-    // if (intervalOption.values.from <= 0) {
-    //   alert(missingValueMessage);
-    //   return;
-    // }
-
 
     axios.post(url, payloadData, {
       headers: {
@@ -209,7 +193,7 @@ class GraphPage extends Component {
           <div className='row simulation-data'>
             <div className='col-5 col-md-5'>
               <div className='form-group col-11 col-md-11'>
-                <SimulatedDataList onChangeActionFunction={this.updateSimulationIdState}
+                <SimulatedDataList onChangeActionFunction={this.updateSimulationIdState} redirected={this.state.redirected}
                 />
               </div>
             </div>
