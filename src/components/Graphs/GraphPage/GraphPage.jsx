@@ -5,10 +5,10 @@ import './GraphPage.css';
 // My Components
 import Main from '../../Template/Main';
 import SimulatedDataList from '../../Simulation/SimulatedDataList';
-import axios from "axios";
-import { BASE_URL } from "../../../constants/api";
-import { Dropdown, Input, Popup } from "semantic-ui-react";
-import GraphInterval from "../../Distribution/GraphInterval";
+import axios from 'axios';
+import { BASE_URL } from '../../../constants/api';
+import { Dropdown, Input, Popup } from 'semantic-ui-react';
+import GraphInterval from '../../Distribution/GraphInterval';
 
 const intervalOptionsState = [
   { key: 'until', value: 'until', text: 'Until' },
@@ -17,29 +17,30 @@ const intervalOptionsState = [
 
 const initialPayload = {
   data: {
-    "simulation-id": null,
-    "interval-option": { option: null, values: { from: null, to: null } }
+    'simulation-id': null,
+    'interval-option': { option: null, values: { from: null, to: null } }
   }
 
 };
 
 const initialState = {
+  redirectOptions: { 'status': false, 'simulation-id': null },
   intervalOptions: intervalOptionsState,
   graphPayload: initialPayload,
   confidenceIntervalValue: 95,
   simulationData: {
-    "confidence-interval-values": {},
-    "graph-div-id": null,
-    "data": [],
-    "mean": null,
-    "std-dev": null,
-    "variance": null,
-    "data-size": null,
-    "max-value": null,
-    "min-value": null,
-    "number-of-samples": null,
-    "number-of-simulations": null,
-    "zones": []
+    'confidence-interval-values': {},
+    'graph-div-id': null,
+    'data': [],
+    'mean': null,
+    'std-dev': null,
+    'variance': null,
+    'data-size': null,
+    'max-value': null,
+    'min-value': null,
+    'number-of-samples': null,
+    'number-of-simulations': null,
+    'zones': []
   },
   renderGraph: false
 };
@@ -52,11 +53,33 @@ class GraphPage extends Component {
     super(props);
     this.updateIntervalData = this.updateIntervalData.bind(this);
     this.updateSimulationIdState = this.updateSimulationIdState.bind(this);
+
   }
 
+  componentDidMount(props) {
+    const propsLocationState = this.props.location.state;
+    console.log('propsLocationState')
+    console.log(propsLocationState)
+    if (propsLocationState){
+      this.processRedirectionData(propsLocationState.redirectOptions);
+    }
+  }
 
   componentWillUnmount() {
     this.setState({ state: initialState });
+  }
+
+  processRedirectionData(redirectOptions) {
+    // const redirectOptions = this.props.location.state.redirectOptions;
+    console.log('bang veio que veio');
+
+    if (!redirectOptions['status']) return;
+
+    const simulationId = redirectOptions['simulation-id']
+    // this.updateSimulationIdState(simulationId)
+    this.updateSimulationIdState(simulationId)
+    console.log('simulation id do rolezao')
+    console.log(simulationId)
   }
 
   updateIntervalOptionState(intervalOptionValue) {
@@ -95,9 +118,13 @@ class GraphPage extends Component {
   }
 
   updateConfidenceIntervalState(receivedValue) {
+    const { graphPayload } = { ...this.state };
+    const currentState = graphPayload;
 
-    if (receivedValue > 100) {
-      alert('The maximum value is 100, sorry');
+    currentState['data']['alpha-value'] = receivedValue;
+
+    if (receivedValue > 95) {
+      alert('The maximum value is 95, sorry');
       return
     }
 
@@ -106,31 +133,43 @@ class GraphPage extends Component {
       return
     }
 
-    this.setState({ confidenceIntervalValue: receivedValue })
+    this.setState({ graphPayload: currentState })
   }
 
   sendRequest() {
-    const { graphPayload } = { ...this.state };
+    const { graphPayload, redirectOptions } = { ...this.state };
     const payloadData = graphPayload;
     const url = `${BASE_URL}/bell_chart_data`;
-    const missingValueMessage = 'The value should be bigger than 0';
+    // const shouldBeANumberMessage = 'The value should be number, if float with . instead of ,';
+
+    if (redirectOptions['status']) {
+      graphPayload['data']['simulation-id'] = redirectOptions['"simulation-id"']
+    }
+
     const intervalOption = payloadData['data']['interval-option'];
 
+    if (!graphPayload['data']['simulation-id']) {
+      alert('Please select a simulation from the list');
+      return;
+    }
+
     if (intervalOption.option === 'between') {
-      if (!intervalOption.values.to) {
-        alert(missingValueMessage);
+      // if (!intervalOption.values.to) {
+      //   alert(missingValueMessage);
+      //   return;
+      // }
+
+
+      if (intervalOption.values.from >= intervalOption.values.to) {
+        alert("The value of 'From' field should positive bigger than 0 and not be equal or bigger than 'To'");
         return;
       }
 
-      if (intervalOption.values.from >= intervalOption.values.to) {
-        alert('The value of "From" field should positive bigger than 0 and not be equal or bigger than "To"');
-        return;
-      }
     }
-    if (intervalOption.values.from <= 0) {
-      alert(missingValueMessage);
-      return;
-    }
+    // if (intervalOption.values.from <= 0) {
+    //   alert(missingValueMessage);
+    //   return;
+    // }
 
 
     axios.post(url, payloadData, {
@@ -140,10 +179,10 @@ class GraphPage extends Component {
     })
       .then((resp) => {
         const currentState = resp.data.data;
-        const intervalValues = this.state.graphPayload.data["interval-option"].values;
+        const intervalValues = this.state.graphPayload.data['interval-option'].values;
 
-        currentState["simulation-id"] = this.state.graphPayload.data["simulation-id"];
-        currentState["graph-div-id"] = `${this.state.graphPayload.data["simulation-id"]}-${intervalValues.from}-${intervalValues.to}`;
+        currentState['simulation-id'] = this.state.graphPayload.data['simulation-id'];
+        currentState['graph-div-id'] = `${this.state.graphPayload.data['simulation-id']}-${intervalValues.from}-${intervalValues.to}`;
 
         this.setState({ simulationData: currentState });
         this.setState({ renderGraph: true });
@@ -162,25 +201,25 @@ class GraphPage extends Component {
   render() {
     return (
       <Main
-        icon="area-chart"
-        title="GraphPage"
+        icon='area-chart'
+        title='Graph Page'
         subtitle="Here you'll be able to check Bell's Chart Graph for the selected simulation"
       >
-        <div className="form">
-          <div className="row simulation-data">
-            <div className="col-5 col-md-5">
-              <div className="form-group col-11 col-md-11">
+        <div className='form'>
+          <div className='row simulation-data'>
+            <div className='col-5 col-md-5'>
+              <div className='form-group col-11 col-md-11'>
                 <SimulatedDataList onChangeActionFunction={this.updateSimulationIdState}
                 />
               </div>
             </div>
 
-            <div className="form-group  col-2 col-md-2">
+            <div className='form-group  col-2 col-md-2'>
               <h3>Graph Area</h3>
               <label>Choose an interval to highlight</label>
               <Dropdown
-                name="intervalOption"
-                placeholder="Select an option"
+                name='intervalOption'
+                placeholder='Select an option'
                 fluid
                 search
                 selection
@@ -200,7 +239,7 @@ class GraphPage extends Component {
                   label={'α'}
                   type='number'
                   id={'confidenceInterval'}
-                  className="confidenceInterval text-center"
+                  className='confidenceInterval text-center'
                   placeholder={95}
                   name={'confidenceInterval'}
                   onChange={(event, { value }) => {
@@ -209,13 +248,13 @@ class GraphPage extends Component {
                 />
               </div>
             </div>
-            <GraphInterval intervalOption={this.state.graphPayload.data["interval-option"].option}
+            <GraphInterval intervalOption={this.state.graphPayload.data['interval-option'].option}
                            updateIntervalParameter={this.updateIntervalData}> </GraphInterval>
           </div>
-          <div className="row">
-            <div className="col-12 d-flex justify-content-end">
+          <div className='row'>
+            <div className='col-12 d-flex justify-content-end'>
               <button
-                className="btn btn-primary"
+                className='btn btn-primary'
                 onClick={(e) => this.sendRequest(e)}
               >
                 Show Data!

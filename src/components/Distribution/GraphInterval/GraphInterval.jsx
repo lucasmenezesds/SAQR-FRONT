@@ -6,11 +6,11 @@ import './GraphInterval.css';
 const initialState = {
   intervalParameters: {
     until: [
-      { id: 0, label: '', value: null, name: 'untilValue' }
+      { id: 0, label: 'Value', value: 0, name: 'untilValue' }
     ],
     between: [
-      { id: 1, label: 'From', value: null, name: 'betweenFrom' },
-      { id: 2, label: 'To', value: null, name: 'betweenTo' }
+      { id: 1, label: 'From', value: 0, name: 'betweenFrom' },
+      { id: 2, label: 'To', value: 0, name: 'betweenTo' }
     ]
   }
 };
@@ -31,15 +31,15 @@ class GraphInterval extends Component {
 
     intervalOptionArray[indexPos]['value'] = receivedValue;
 
-    if (receivedValue > 100) {
-      alert('The maximum value is 100, sorry');
-      return
-    }
-
-    if (receivedValue < 1) {
-      alert('The minimum value is 1, sorry');
-      return
-    }
+    // if (receivedValue > 100) {
+    //   alert('The maximum value is 100, sorry');
+    //   return
+    // }
+    //
+    // if (receivedValue < 1) {
+    //   alert('The minimum value is 1, sorry');
+    //   return
+    // }
 
     this.setState({ intervalParameters })
   }
@@ -49,7 +49,7 @@ class GraphInterval extends Component {
     return (
       <div className="form-group" key={param.id}>
         <div className="form-group interval-parameters text-center">
-          <p>{`${param.label} %`}</p>
+          <p>{`${param.label}`}</p>
           <Input
             type='number'
             id={param.id}

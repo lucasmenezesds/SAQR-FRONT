@@ -2,11 +2,13 @@ import axios from 'axios';
 import React, { Component } from 'react';
 import Main from '../../Template/Main';
 import './Simulate.css';
-import DistributionParameters from "../../Distribution/DistributionParameters";
-import { BASE_URL } from "../../../constants/api";
-import { Dropdown, Input } from "semantic-ui-react";
+import DistributionParameters from '../../Distribution/DistributionParameters';
+import { BASE_URL } from '../../../constants/api';
+import { Dropdown, Input } from 'semantic-ui-react';
 import LoadingOverlay from 'react-loading-overlay';
 import SyncLoader from 'react-spinners/SyncLoader'
+import GraphPage from '../../Graphs/GraphPage/GraphPage';
+import { Redirect } from "react-router";
 
 const headerProps = {
   icon: 'calculator',
@@ -17,8 +19,8 @@ const headerProps = {
 
 const initialDistributionMethodObj = () => {
   return {
-    "name": null,
-    "parameters": []
+    'name': null,
+    'parameters': []
   }
 };
 // TODO: refactor - Duplicated
@@ -32,31 +34,31 @@ const stepsNames = {
 
 // TODO: refactor
 const initialPayload = {
-  "data": {
-    "number_of_simulations": 100,
-    "number_of_samples": 5000,
-    "start_seed_value": 120,
-    "end_seed_value": 720,
-    "steps": [
+  'data': {
+    'number_of_simulations': 100,
+    'number_of_samples': 5000,
+    'start_seed_value': 120,
+    'end_seed_value': 720,
+    'steps': [
       {
-        "delivery_step": "picking_time",
-        "distribution_method": initialDistributionMethodObj()
+        'delivery_step': 'picking_time',
+        'distribution_method': initialDistributionMethodObj()
       },
       {
-        "delivery_step": "load_time",
-        "distribution_method": initialDistributionMethodObj()
+        'delivery_step': 'load_time',
+        'distribution_method': initialDistributionMethodObj()
       },
       {
-        "delivery_step": "transportation_time",
-        "distribution_method": initialDistributionMethodObj()
+        'delivery_step': 'transportation_time',
+        'distribution_method': initialDistributionMethodObj()
       },
       {
-        "delivery_step": "receive_time",
-        "distribution_method": initialDistributionMethodObj()
+        'delivery_step': 'receive_time',
+        'distribution_method': initialDistributionMethodObj()
       },
       {
-        "delivery_step": "storage_time",
-        "distribution_method": initialDistributionMethodObj()
+        'delivery_step': 'storage_time',
+        'distribution_method': initialDistributionMethodObj()
       }
     ]
   }
@@ -65,6 +67,7 @@ const initialPayload = {
 
 const initialState = {
   overlay: false,
+  redirectToGraph: true,
   simulationPayload: initialPayload,
   listOfStatisticalMethods: [],
   stepsDistributionsParametersList: {
@@ -102,7 +105,7 @@ export default class Simulate extends Component {
         this.setState({ listOfStatisticalMethods: resp.data.data })
       })
       .catch(err => {
-        console.log("distribution_methods CATCH");
+        console.log('distribution_methods CATCH');
         console.log(err) //TODO: check it
       })
   }
@@ -161,9 +164,28 @@ export default class Simulate extends Component {
     const { simulationPayload } = { ...this.state };
     const currentState = simulationPayload;
 
-    currentState['data'][event.target.name] = event.target.value;
+    const receivedValue = event.target.value
+
+    if (receivedValue > 100) {
+      alert('The maximum value is 100, sorry');
+      return
+    }
+
+    if (receivedValue < 1) {
+      alert('The minimum value is 1, sorry');
+      return
+    }
+
+
+    currentState['data'][event.target.name] = receivedValue;
+
 
     this.setState({ simulationPayload: currentState })
+  }
+
+  updateCheckBox(event) {
+    const redirectToGraphValue = event.target.checked
+    this.setState({ redirectToGraph: redirectToGraphValue })
   }
 
   payloadValidation() {
@@ -195,8 +217,18 @@ export default class Simulate extends Component {
 
   sendRequest() {
     this.setState({ overlay: true });
-    const { simulationPayload } = this.state;
+    const { simulationPayload, redirectToGraph } = this.state;
     const url = `${BASE_URL}/simulate_deliveries`;
+    if (redirectToGraph) {
+      alert('The processing was successfully done! Select the First Simulation from the list!');
+      // <Redirect to={{ pathname: '/order', state: { id: '123' } }}/>
+      this.props.history.push({
+        pathname: '/graph',
+        state: { redirectOptions: { 'status': true, 'simulation-id': '28' } }
+      });
+
+      return;
+    }
 
     if (!this.payloadValidation()) {
       this.setState({ overlay: false });
@@ -210,70 +242,95 @@ export default class Simulate extends Component {
     })
       .then((resp) => {
         this.setState({ overlay: false });
-        console.log(resp);
-        alert('The processing was successfully done!')
+        // console.log(resp);
+
+        const simulation_id = resp['data']['data']['id']
+
+        if (redirectToGraph) {
+          alert('The processing was successfully done! Select the First Simulation from the list!')
+          this.props.history.push({
+            pathname: '/graph',
+            state: { redirectOptions: { 'status': true, 'simulation-id': simulation_id } }
+          });
+
+          return;
+        }
+        alert("The processing was successfully done! Check the Graph's page!");
       })
       .catch((err) => {
         this.setState({ overlay: false });
         console.log(err);
         alert(`Something Went Wrong\n\n${err}`);
       });
+
   }
 
   renderForm() {
     // TODO: Refactor to re-use dropdown component
     return (
-      <div className="form">
-        <div className="row simulation-steps">
-          <div className="col-2 col-md-2">
-            <div className="form-group text-center">
+      <div className='form'>
+        <div className='row simulation-steps'>
+          <div className='col-2 col-md-2'>
+            <div className='form-group text-center'>
               <label>Number of Simulations</label>
-              <Input type='number' className="text-center"
+              <Input inputMode='numeric' type='number' className='text-center'
                      placeholder={this.state.simulationPayload.data.number_of_simulations}
-                     name="number_of_simulations"
+                     name='number_of_simulations'
                      onChange={e => this.updateField(e)}/>
             </div>
           </div>
-          <div className="col-3 col-md-3">
-            <div className="form-group text-center">
+          <div className='col-3 col-md-3'>
+            <div className='form-group text-center'>
               <label>Number of samples for each simulation</label>
-              <Input type="number" className="col-11 col-md-11 text-center"
+              <Input inputMode='numeric' type='number' className='col-11 col-md-11 text-center'
                      placeholder={this.state.simulationPayload.data.number_of_samples}
-                     name="number_of_samples"
+                     name='number_of_samples'
                      onChange={e => this.updateField(e)}/>
 
             </div>
           </div>
-          <div className="col-2 col-md-2">
-            <div className="form-group text-center">
+          <div className='col-2 col-md-2'>
+            <div className='form-group text-center'>
               <label>Min. value for the seed</label>
-              <Input type="number" className="text-center"
+              <Input inputMode='numeric' type='number' className='text-center'
                      placeholder={this.state.simulationPayload.data.start_seed_value}
-                     name="start_seed_value"
+                     name='start_seed_value'
                      onChange={e => this.updateField(e)}/>
 
             </div>
           </div>
-          <div className="col-2 col-md-2">
-            <div className="form-group text-center">
+          <div className='col-2 col-md-2'>
+            <div className='form-group text-center'>
               <label>Max. value for the seed</label>
-              <Input type="number" className="text-center"
+              <Input inputMode='numeric' type='number' className='text-center'
                      placeholder={this.state.simulationPayload.data.end_seed_value}
-                     name="end_seed_value"
+                     name='end_seed_value'
                      onChange={e => this.updateField(e)}/>
 
+            </div>
+          </div>
+
+          <div className='col-2 col-md-2'>
+            <div className='form-group text-center'>
+              <label>Redirect to Graph Page?</label>
+              <Input type='checkbox' className='checkbox-center'
+                     defaultChecked={this.state.redirectToGraph}
+                     name='redirectToGraph'
+                     onChange={e => {
+                       this.updateCheckBox(e);
+                     }}/>
             </div>
           </div>
         </div>
         <hr/>
-        <div className="row simulation-steps">
-          <div className="col-3 col-md-3">
+        <div className='row simulation-steps'>
+          <div className='col-3 col-md-3'>
             <h3>Step: Picking Time</h3>
-            <div className="form-group">
+            <div className='form-group'>
               <label>Select a distribution for this step</label>
               <Dropdown
-                name="picking_time"
-                placeholder="Choose an distribution..."
+                name='picking_time'
+                placeholder='Choose an distribution...'
                 fluid
                 search
                 selection
@@ -289,14 +346,14 @@ export default class Simulate extends Component {
                                   updateStepsParameters={this.updateSimulationPayloadStepsData}> </DistributionParameters>
         </div>
         <hr/>
-        <div className="row simulation-steps">
-          <div className="col-3 col-md-3">
+        <div className='row simulation-steps'>
+          <div className='col-3 col-md-3'>
             <h3>Step: Loading Time</h3>
-            <div className="form-group">
+            <div className='form-group'>
               <label>Select a distribution for this step</label>
               <Dropdown
-                name="load_time"
-                placeholder="Choose an distribution..."
+                name='load_time'
+                placeholder='Choose an distribution...'
                 fluid
                 search
                 selection
@@ -312,14 +369,14 @@ export default class Simulate extends Component {
                                   updateStepsParameters={this.updateSimulationPayloadStepsData}> </DistributionParameters>
         </div>
         <hr/>
-        <div className="row simulation-steps">
-          <div className="col-3 col-md-3">
+        <div className='row simulation-steps'>
+          <div className='col-3 col-md-3'>
             <h3>Step: Transportation Time</h3>
-            <div className="form-group">
+            <div className='form-group'>
               <label>Select a distribution for this step</label>
               <Dropdown
-                name="transportation_time"
-                placeholder="Choose an distribution..."
+                name='transportation_time'
+                placeholder='Choose an distribution...'
                 fluid
                 search
                 selection
@@ -335,14 +392,14 @@ export default class Simulate extends Component {
                                   updateStepsParameters={this.updateSimulationPayloadStepsData}> </DistributionParameters>
         </div>
         <hr/>
-        <div className="row simulation-steps">
-          <div className="col-3 col-md-3">
+        <div className='row simulation-steps'>
+          <div className='col-3 col-md-3'>
             <h3>Step: Receiving Time</h3>
-            <div className="form-group">
+            <div className='form-group'>
               <label>Select a distribution for this step</label>
               <Dropdown
-                name="receive_time"
-                placeholder="Choose an distribution..."
+                name='receive_time'
+                placeholder='Choose an distribution...'
                 fluid
                 search
                 selection
@@ -358,14 +415,14 @@ export default class Simulate extends Component {
                                   updateStepsParameters={this.updateSimulationPayloadStepsData}> </DistributionParameters>
         </div>
         <hr/>
-        <div className="row simulation-steps">
-          <div className="col-3 col-md-3">
+        <div className='row simulation-steps'>
+          <div className='col-3 col-md-3'>
             <h3>Step: Storing Time</h3>
-            <div className="form-group">
+            <div className='form-group'>
               <label>Select a distribution for this step</label>
               <Dropdown
-                name="storage_time"
-                placeholder="Choose an distribution..."
+                name='storage_time'
+                placeholder='Choose an distribution...'
                 fluid
                 search
                 selection
@@ -381,9 +438,9 @@ export default class Simulate extends Component {
                                   updateStepsParameters={this.updateSimulationPayloadStepsData}> </DistributionParameters>
         </div>
         <hr/>
-        <div className="row">
-          <div className="col-12 d-flex justify-content-end">
-            <button className="btn btn-primary"
+        <div className='row'>
+          <div className='col-12 d-flex justify-content-end'>
+            <button className='btn btn-primary'
                     onClick={e => this.sendRequest(e)}>
               Start Simulation!
             </button>
@@ -405,7 +462,7 @@ export default class Simulate extends Component {
             overlay: (base) => ({
               ...base,
               background: 'rgba(0, 0, 0, 0)',
-              color: "#000000"
+              color: '#000000'
             }),
           }}
         >

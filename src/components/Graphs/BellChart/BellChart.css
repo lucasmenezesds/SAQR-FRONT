@@ -53,3 +53,13 @@
 .add-left-padding-15 {
     padding-left: 15px;
 }
+
+.span-text-g {
+    font-weight: 900;
+    color: #2bdc25;
+}
+
+.span-text-b {
+    font-weight: 900;
+    color: #167bf3;
+}

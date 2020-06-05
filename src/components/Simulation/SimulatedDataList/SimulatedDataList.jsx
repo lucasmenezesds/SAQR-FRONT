@@ -25,6 +25,13 @@ class SimulatedDataList extends Component {
       })
   }
 
+  setPlaceholder(){
+    if(this.props.redirected){
+      ''
+    }
+
+  }
+
   simulatedDataDropdown() {
     return (
       <div className="row simulation-steps" key='SimulatedDataDropdown'>
