@@ -18,7 +18,7 @@ const defaultGraphOptions = {
     events: {
       load() {
         Highcharts.each(this.series[0].data, (point, i) => {
-          const labels = ['-4σ', '-3σ (0.1%)', '-2σ (2.3%)', '-σ (15.9%)', 'μ (50%)', 'σ (84.1%)', '2σ (97.7%)', '3σ (99.9%)', '4σ'];
+          const labels = ['-4σ', '-3σ (0.13%)', '-2σ (2.28%)', '-σ (15.87%)', 'μ (50.00%)', 'σ (84.13%)', '2σ (97.72%)', '3σ (99.87%)', '4σ'];
           if (i % pointsInIntervalNumber === 0) {
             point.update({
               color: 'black',
@@ -42,28 +42,33 @@ const defaultGraphOptions = {
     text: 'Normal Distribution',
   },
   plotOptions: {
-    column: {
+    bellcurve: {
       pointPlacement: 'between',
-    },
+    }
   },
   tooltip: {
     shared: true,
+    inside: true,
+    valueDecimals: 4,
+    crosshairs: [true, true],
+    pointFormat: null,
+    headerFormat: '<span style=\"color:{point.color}\">●</span> X Value: <b>{point.key:.4f}</b><br/>',
   },
   xAxis: [
     {
-    title: {
-      text: '',
+      title: {
+        text: '',
+      },
+      alignTicks: false,
+      opposite: true,
     },
-    alignTicks: false,
-    opposite: true,
-  },
     {
-    title: {
-      text: 'Delivery Time',
-    },
-    alignTicks: false,
-    opposite: false,
-  }],
+      title: {
+        text: 'Delivery Time',
+      },
+      alignTicks: false,
+      opposite: false,
+    }],
 
   yAxis: [{
     title: { text: 'Data Value  ' },
@@ -94,6 +99,7 @@ const defaultGraphOptions = {
       data: [],
       visible: false,
       accessibility: {
+        enabled: true,
         exposeAsGroupOnly: true,
       },
       marker: {
@@ -183,7 +189,9 @@ class SimulatedDataList extends Component {
                   <Popup
                     content='Probability to happen'
                     trigger={(
-                      <p><span className='span-text-g'>Green Area:</span> {simulationData['probabilities']['success'].toFixed(2)} %</p>
+                      <p><span
+                        className='span-text-g'>Green Area:</span> {simulationData['probabilities']['success'].toFixed(2)} %
+                      </p>
                     )}
                   />
                 </div>
@@ -193,7 +201,9 @@ class SimulatedDataList extends Component {
               <Popup
                 content='Probability to NOT happen'
                 trigger={(
-                  <p><span className='span-text-b'>Blue Area:</span> {simulationData['probabilities']['failure'].toFixed(2)} %</p>
+                  <p><span
+                    className='span-text-b'>Blue Area:</span> {simulationData['probabilities']['failure'].toFixed(2)} %
+                  </p>
                 )}
               />
 
