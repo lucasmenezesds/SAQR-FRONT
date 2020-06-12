@@ -10,7 +10,7 @@ highchartBellCurve(Highcharts);
 
 const GRAPHS_BLUE = '#7cb5ec';
 const GRAPHS_GREEN = '#90ed7d';
-const GRAPHS_ORANGE = '#f7a35c';
+// const GRAPHS_ORANGE = '#f7a35c';
 
 const pointsInIntervalNumber = 5;
 const defaultGraphOptions = {
@@ -18,7 +18,7 @@ const defaultGraphOptions = {
     events: {
       load() {
         Highcharts.each(this.series[0].data, (point, i) => {
-          const labels = ['4σ', '3σ', '2σ', 'σ', 'μ', 'σ', '2σ', '3σ', '4σ'];
+          const labels = ['-4σ', '-3σ (0.13%)', '-2σ (2.28%)', '-σ (15.87%)', 'μ (50.00%)', 'σ (84.13%)', '2σ (97.72%)', '3σ (99.87%)', '4σ'];
           if (i % pointsInIntervalNumber === 0) {
             point.update({
               color: 'black',
@@ -39,34 +39,43 @@ const defaultGraphOptions = {
     },
   },
   title: {
-    text: 'Bell curve1',
+    text: 'Normal Distribution',
   },
   plotOptions: {
-    column: {
+    bellcurve: {
       pointPlacement: 'between',
-    },
+    }
   },
   tooltip: {
     shared: true,
+    inside: true,
+    valueDecimals: 4,
+    crosshairs: [true, true],
+    pointFormat: null,
+    headerFormat: '<span style=\"color:{point.color}\">●</span> X Value: <b>{point.key:.4f}</b><br/>',
   },
-  xAxis: [{
-    title: {
-      text: 'Delivery Times',
+  xAxis: [
+    {
+      title: {
+        text: '',
+      },
+      alignTicks: false,
+      opposite: true,
     },
-    alignTicks: false,
-  }, {
-    title: {
-      text: 'Bell curve2',
-    },
-    alignTicks: false,
-    opposite: true,
-  }],
+    {
+      title: {
+        text: 'Delivery Time',
+      },
+      alignTicks: false,
+      opposite: false,
+    }],
 
   yAxis: [{
-    title: { text: 'Time (hours)' },
+    title: { text: 'Data Value  ' },
+    opposite: true
   }, {
-    title: { text: 'Bell curve (PDF)' },
-    opposite: true,
+    title: { text: 'f(x)' },
+    opposite: false,
   }],
   series: [
     {
@@ -88,7 +97,9 @@ const defaultGraphOptions = {
       name: 'Data',
       type: 'scatter',
       data: [],
+      visible: false,
       accessibility: {
+        enabled: true,
         exposeAsGroupOnly: true,
       },
       marker: {
@@ -130,14 +141,14 @@ class SimulatedDataList extends Component {
             <div className='col-5 col-md-5'>
               <div className="form-group col-11 col-md-11">
                 <div>
-                  <p><span className='span-text'>Mean:</span> {simulationData["mean"]}</p>
+                  <p><span className='span-text'>Mean:</span> {simulationData["mean"].toFixed(4)}</p>
                   <Popup
                     content='Standard Deviation'
                     trigger={(
-                      <p><span className='span-text'>Std Dev:</span> {simulationData["std_dev"]}</p>
+                      <p><span className='span-text'>Std Dev:</span> {simulationData["std_dev"].toFixed(4)}</p>
                     )}
                   />
-                  <p><span className='span-text'>Variance:</span> {simulationData["variance"]}</p>
+                  <p><span className='span-text'>Variance:</span> {simulationData["variance"].toFixed(4)}</p>
                 </div>
               </div>
             </div>
@@ -145,25 +156,57 @@ class SimulatedDataList extends Component {
               <div className='form-group col-11 col-md-11'>
                 <div>
                   <Popup
-                    content='Biggest value of the sample'
-                    trigger={(
-                      <p><span className='span-text'>Max Value:</span> {simulationData["max_value"]}</p>
-                    )}
-                  />
-                  <Popup
                     content='Smallest value of the sample'
                     trigger={(
-                      <p><span className='span-text'>Min Value:</span> {simulationData["min_value"]}</p>
+                      <p><span className='span-text'>Min Value:</span> {simulationData["min_value"].toFixed(4)}</p>
                     )}
                   />
                   <Popup
-                    content='Size of the sample'
+                    content='Biggest value of the sample'
                     trigger={(
-                      <p><span className='span-text'>Data Size:</span> {simulationData["data_size"]}</p>
+                      <p><span className='span-text'>Max Value:</span> {simulationData["max_value"].toFixed(4)}</p>
+                    )}
+                  />
+                  <Popup
+                    content='Confidence Interval; Probability of α to the μ be in this interval'
+                    trigger={(
+                      <p><span
+                        className='span-text2'>C.I for the μ:</span> {`[ ${simulationData['mean_intervals']['min_interval'].toFixed(4)} ; ${simulationData['mean_intervals']['max_interval'].toFixed(4)} ]`}
+                      </p>
                     )}
                   />
                 </div>
               </div>
+            </div>
+          </div>
+        </div>
+        <div className='form'>
+          <h4 className='add-left-padding-15'>Probabilities</h4>
+          <div className='row'>
+            <div className='col-5 col-md-5'>
+              <div className="form-group col-11 col-md-11">
+                <div>
+                  <Popup
+                    content='Probability to happen'
+                    trigger={(
+                      <p><span
+                        className='span-text-g'>Green Area:</span> {simulationData['probabilities']['success'].toFixed(2)} %
+                      </p>
+                    )}
+                  />
+                </div>
+              </div>
+            </div>
+            <div className='col-5 col-md-5'>
+              <Popup
+                content='Probability to NOT happen'
+                trigger={(
+                  <p><span
+                    className='span-text-b'>Blue Area:</span> {simulationData['probabilities']['failure'].toFixed(2)} %
+                  </p>
+                )}
+              />
+
             </div>
           </div>
         </div>

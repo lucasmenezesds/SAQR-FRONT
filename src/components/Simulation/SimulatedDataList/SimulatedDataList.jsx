@@ -4,7 +4,7 @@ import './SimulatedDataList.css';
 import { BASE_URL } from "../../../constants/api";
 import { Dropdown } from "semantic-ui-react";
 
-const initialState = { simulatedDataList: [] };
+const initialState = { simulatedDataList: [], placeholder: 'YYYY-MM-DD HH:MM' };
 
 // eslint-disable-next-line react/prefer-stateless-function
 class SimulatedDataList extends Component {
@@ -18,6 +18,10 @@ class SimulatedDataList extends Component {
     })
       .then(resp => {
         this.setState({ simulatedDataList: resp.data.data })
+        if(this.props.redirected){
+          const new_placeholder = this.state.simulatedDataList[0]['text']
+          this.setState({placeholder: new_placeholder})
+        }
       })
       .catch(err => {
         console.log("simulate_deliveries_list CATCH");
@@ -34,7 +38,7 @@ class SimulatedDataList extends Component {
             <label>Select a simulation to display</label>
             <Dropdown
               name="simulatedDataList"
-              placeholder="YYYY-MM-DD HH:MM"
+              placeholder={this.state.placeholder}
               fluid
               search
               selection

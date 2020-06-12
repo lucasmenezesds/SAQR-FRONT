@@ -41,12 +41,16 @@
     background: #f1f7ff;
 }
 
-/*.simulation-steps {*/
-/*    padding-bottom: 5px;*/
-/*    background-color: #FFF;*/
-/*}*/
-
 .simulation-data {
     padding-bottom: 5px;
     background-color: #FFF;
+}
+
+.confidenceInterval {
+    width: 82px;
+    height: 35px;
+}
+
+.top-padding-20{
+    padding-top: 20px;
 }
