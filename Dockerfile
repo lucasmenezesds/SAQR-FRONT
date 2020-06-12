@@ -9,4 +9,6 @@ RUN npm install
 
 COPY . $APP_DIR
 
+EXPOSE 3000
+
 CMD ["npm", "start"]
