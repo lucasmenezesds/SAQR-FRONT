@@ -21,6 +21,7 @@ const stepsNames = {
 
 const parameterSymbols = {
   'alpha': 'α',
+  'lambda': 'λ',
   'mu': 'μ',
   'sigma': 'σ',
   'beta': 'Β',
