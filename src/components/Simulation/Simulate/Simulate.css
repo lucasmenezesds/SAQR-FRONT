@@ -1,0 +1,14 @@
+.simulation-steps {
+    padding-bottom: 5px;
+    background-color: #FFF;
+}
+
+.text-center {
+    text-align: center;
+}
+
+.checkbox-center {
+    display: block !important;
+    padding-top: 10px;
+    text-align: center;
+}

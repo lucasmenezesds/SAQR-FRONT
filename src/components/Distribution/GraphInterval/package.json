@@ -1,0 +1,6 @@
+{
+  "name": "graph-interval",
+  "version": "0.0.2",
+  "private": true,
+  "main": "GraphInterval.jsx"
+}

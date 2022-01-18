@@ -6,9 +6,9 @@ import { HashRouter } from 'react-router-dom';
 
 // My Components
 import Routes from './Routes';
-import Logo from '../components/template/Logo';
-import Nav from '../components/template/Nav';
-import Footer from '../components/template/Footer';
+import Logo from '../components/Template/Logo';
+import Nav from '../components/Template/Nav';
+import Footer from '../components/Template/Footer';
 
 function App() {
   return (

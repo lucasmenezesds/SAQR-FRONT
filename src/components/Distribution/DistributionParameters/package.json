@@ -1,0 +1,6 @@
+{
+  "name": "distribution-parameters",
+  "version": "0.0.1",
+  "private": true,
+  "main": "DistributionParameters.jsx"
+}

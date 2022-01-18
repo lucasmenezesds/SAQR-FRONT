@@ -15,16 +15,17 @@ export default (props) => (
         {' '}
         Simulate
       </Link>
-      <Link to="/graphs">
-        <i className="fa fa-area-chart" aria-hidden="true" />
-        {' '}
-        Graphs
-      </Link>
       <Link to="/previous_simulations">
-        <i className="fa fa-database" aria-hidden="true" />
+        <i className="fa fa-history" aria-hidden="true"/>
         {' '}
         Previous Simulations
       </Link>
+      <Link to="/graph">
+        <i className="fa fa-area-chart" aria-hidden="true" />
+        {' '}
+        Graph
+      </Link>
+
     </nav>
   </aside>
 );
